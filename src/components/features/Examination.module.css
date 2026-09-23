@@ -1,0 +1,27 @@
+/* Examination view and its rail. Specs: docs/PRD.md § 8 Screen: Examination, docs/DESIGN.md § Slop Doctor mapping. */
+.layout {
+  display: grid; grid-template-columns: 8fr 4fr; grid-template-rows: auto auto 1fr; column-gap: var(--space-gutter); row-gap: var(--space-xl);
+  grid-template-areas: "scan wait" "scan meter" "scan results"; padding-block: var(--space-xl) var(--space-2xl); align-items: start;
+}
+.scan { grid-area: scan; min-width: 0; }
+.wait { grid-area: wait; min-width: 0; }
+.meterArea { grid-area: meter; min-width: 0; }
+.resultsArea { grid-area: results; min-width: 0; }
+
+.waitingRoom { display: flex; flex-direction: column; gap: var(--space-md); }
+.stages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-sm); }
+.stage { display: grid; grid-template-columns: 24px 1fr; align-items: center; gap: var(--space-sm); }
+.stage :global(.rung) { height: 12px; }
+.currentRung { background: var(--color-surface); border: 2px solid var(--color-on-surface); }
+
+.meter { display: flex; flex-direction: column; gap: var(--space-sm); }
+
+.results { max-height: 50vh; overflow-y: auto; }
+.resultRow { grid-template-columns: 1fr auto auto; gap: var(--space-sm); padding: var(--space-sm) 0; }
+
+@media (max-width: 1023px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: "wait" "scan" "meter" "results"; }
+}
+
+.loading { padding-block: var(--space-xl); }
+.loading :global(.panel-grid) { min-height: 320px; display: grid; place-items: center; }

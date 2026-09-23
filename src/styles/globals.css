@@ -1,0 +1,62 @@
+@import "./tokens.css";
+@import "./components.css";
+
+/* next/font provides the families; the token names stay as docs/DESIGN.md defines them. */
+:root { --font-sans: var(--font-switzer), "Helvetica Neue", Arial, sans-serif; --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--color-surface); color-scheme: light; }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--type-body-md-size);
+  line-height: var(--type-body-md-lh);
+  color: var(--color-on-surface);
+  background: var(--color-surface);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-underline-offset: 0.15em; }
+button, input, textarea, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--color-on-surface); outline-offset: 2px; }
+h1, h2, h3, h4, p { margin: 0; }
+
+/* Type scale */
+.t-display-lg { font-size: var(--type-display-lg-size); font-weight: var(--type-display-lg-weight); line-height: var(--type-display-lg-lh); letter-spacing: var(--type-display-lg-ls); }
+.t-headline-lg { font-size: var(--type-headline-lg-size); font-weight: var(--type-headline-lg-weight); line-height: var(--type-headline-lg-lh); letter-spacing: var(--type-headline-lg-ls); }
+.t-headline-md { font-size: var(--type-headline-md-size); font-weight: var(--type-headline-md-weight); line-height: var(--type-headline-md-lh); letter-spacing: var(--type-headline-md-ls); }
+.t-title-md { font-size: var(--type-title-md-size); font-weight: var(--type-title-md-weight); line-height: var(--type-title-md-lh); }
+.t-body-lg { font-size: var(--type-body-lg-size); font-weight: var(--type-body-lg-weight); line-height: var(--type-body-lg-lh); }
+.t-body-md { font-size: var(--type-body-md-size); font-weight: var(--type-body-md-weight); line-height: var(--type-body-md-lh); }
+.t-body-sm { font-size: var(--type-body-sm-size); font-weight: var(--type-body-sm-weight); line-height: var(--type-body-sm-lh); }
+.t-label-md { font-size: var(--type-label-md-size); font-weight: var(--type-label-md-weight); line-height: var(--type-label-md-lh); }
+.t-label-mono, .mono { font-family: var(--font-mono); font-size: var(--type-label-mono-size); font-weight: var(--type-label-mono-weight); line-height: var(--type-label-mono-lh); letter-spacing: var(--type-label-mono-ls); text-transform: uppercase; }
+.muted { color: var(--color-on-surface-variant); }
+
+/* Layout */
+.frame { max-width: 1280px; margin: 0 auto; padding-inline: var(--space-margin); }
+.measure { max-width: 720px; }
+.grid { display: grid; gap: var(--space-gutter); }
+.cols-12 { grid-template-columns: repeat(12, 1fr); }
+.span-8 { grid-column: span 8; } .span-4 { grid-column: span 4; } .span-12 { grid-column: span 12; }
+.hairline { border: 0; border-top: 1px solid var(--color-outline-variant); margin: 0; }
+.stack > * + * { margin-top: var(--space-md); }
+.stack-sm > * + * { margin-top: var(--space-sm); }
+.stack-lg > * + * { margin-top: var(--space-lg); }
+.row { display: flex; gap: var(--space-md); align-items: center; flex-wrap: wrap; }
+.between { justify-content: space-between; }
+.section-title { padding-bottom: var(--space-sm); border-bottom: 1px solid var(--color-outline-variant); margin-bottom: var(--space-lg); }
+@media (max-width: 900px) {
+  .frame { padding-inline: var(--space-md); }
+  .span-8, .span-4 { grid-column: span 12; }
+}
+
+/* Legal and long-form documents */
+.legal h2 { margin-top: var(--space-xl); }
+.legal p, .legal li { font-size: var(--type-body-md-size); line-height: var(--type-body-md-lh); }
+.legal ul { padding-left: var(--space-lg); }
+.legal li + li { margin-top: var(--space-sm); }
+.legal code, .doc-body code { font-family: var(--font-mono); font-size: 0.9em; background: var(--color-surface-container); padding: 1px 4px; border-radius: var(--rounded-sm); }
+
+/* Slop Doctor: text for screen readers only. */
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

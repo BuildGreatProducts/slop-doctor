@@ -1,0 +1,27 @@
+/* Intake. Specs: docs/PRD.md § 8 Screen: Intake. */
+.page { display: flex; flex-direction: column; gap: var(--space-xl); padding-block: var(--space-xl) var(--space-2xl); }
+.formArea { max-width: 720px; }
+.band { display: grid; grid-template-columns: 8fr 4fr; gap: var(--space-gutter); align-items: end; }
+.bandText { display: flex; flex-direction: column; gap: var(--space-md); }
+.bandText h1 { max-width: 720px; }
+.bandText > p { max-width: 720px; }
+.doctor { display: flex; justify-content: flex-end; }
+
+.form { display: flex; flex-direction: column; gap: var(--space-md); }
+.inputRow { display: flex; gap: var(--space-sm); }
+.inputRow :global(.input) { flex: 1; min-width: 0; }
+
+.signIn { display: flex; flex-direction: column; gap: var(--space-sm); }
+.providers { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+
+.records { max-width: 720px; }
+.record { grid-template-columns: 1fr auto auto; gap: var(--space-md); }
+
+@media (max-width: 1023px) {
+  .band { grid-template-columns: 1fr; }
+  .doctor { display: none; }
+}
+@media (max-width: 600px) {
+  .inputRow { flex-direction: column; }
+  .bandText h1 { font-size: var(--type-headline-lg-size); line-height: var(--type-headline-lg-lh); letter-spacing: var(--type-headline-lg-ls); }
+}

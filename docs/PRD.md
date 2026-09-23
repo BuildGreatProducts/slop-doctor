@@ -104,7 +104,7 @@ Any stage failure sets `status: "failed"` with an `error` copy key (never a raw 
 2. `pnpm add convex` then `npx convex dev --once --configure new` (project name `slop-doctor`). This writes `NEXT_PUBLIC_CONVEX_URL` and `CONVEX_DEPLOYMENT` to `.env.local`.
 3. `pnpm add @convex-dev/auth @auth/core` then `npx @convex-dev/auth --skip-git-check`, which sets `JWT_PRIVATE_KEY`, `JWKS` and `SITE_URL` on the deployment. Copy the wiring pattern from `product-os-dashboard`:
    - `convex/auth.ts`, `convex/auth.config.ts`, and `convex/http.ts` with `auth.addHttpRoutes(http)`
-   - `src/middleware.ts` using `convexAuthNextjsMiddleware` with no protected routes
+   - `src/proxy.ts` (Next 16 renamed `middleware.ts` to `proxy.ts`) using `convexAuthNextjsMiddleware` with no protected routes
    - a root layout wrapped in `ConvexAuthNextjsServerProvider`, plus a client `ConvexClientProvider` using `ConvexAuthNextjsProvider`
 4. `pnpm add @convex-dev/rate-limiter` and register it in `convex/convex.config.ts` with `app.use(rateLimiter)`.
 5. `pnpm add firecrawl @google/genai @typesafe-ai/sdk zod image-size jimp`.
@@ -215,7 +215,7 @@ slop-doctor/
 │   │   └── useRevealQueue.ts   # paces findings for the scanner
 │   ├── styles/                 # tokens.css, components.css, globals.css (+ feature CSS modules)
 │   ├── fonts/                  # Switzer woff2
-│   └── middleware.ts
+│   └── proxy.ts                # Next 16 name for middleware
 ├── tests/                      # vitest unit + convex-test
 ├── e2e/                        # Playwright smoke
 ├── scripts/calibrate.ts        # runs 6 fixture URLs through the pipeline
@@ -357,7 +357,8 @@ export default defineSchema({
     createdAt: v.number(),
   })
     .index("by_user_created", ["userId", "createdAt"])
-    .index("by_normalizedUrl_created", ["normalizedUrl", "createdAt"]),
+    .index("by_normalizedUrl_created", ["normalizedUrl", "createdAt"])
+    .index("by_status_created", ["status", "createdAt"]),
 
   findings: defineTable({
     scanId: v.id("scans"),
@@ -384,6 +385,7 @@ export default defineSchema({
 
 - `scans.by_user_created`: patient records (`scans.mine`), newest first, plus counting for the UI.
 - `scans.by_normalizedUrl_created`: the 24-hour cache lookup (FR-018).
+- `scans.by_status_created`: the stuck-scan cron finds non-terminal scans older than 3 minutes without a table scan.
 - `findings.by_scan_order`: stream findings for one scan in insertion order.
 
 ## 4. API Specification
@@ -840,7 +842,7 @@ None. Sign-in is inline.
 ### Auth Flow
 1. The user presses a provider button → `useAuthActions().signIn("github" | "google", { redirectTo: "/" + currentSearch })`.
 2. The provider redirects to `https://<deployment>.convex.site/api/auth/callback/<provider>`. Convex Auth creates or updates `users` and `authAccounts`, then redirects to `SITE_URL` with a code.
-3. `convexAuthNextjsMiddleware` exchanges the code and sets the auth cookies. `ConvexAuthNextjsProvider` authenticates the Convex client.
+3. `convexAuthNextjsMiddleware` (in `src/proxy.ts`) exchanges the code and sets the auth cookies. `ConvexAuthNextjsProvider` authenticates the Convex client.
 
 ### Provider Configuration
 ```ts
@@ -854,7 +856,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({ pr
 - **Google:** create an OAuth client (Web) in Google Cloud with authorised redirect URI `https://<deployment>.convex.site/api/auth/callback/google`, then set `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`.
 
 ### Protected Routes
-No protected routes; every page is viewable. Protection is at the function level: `scans.create` requires a user id. `src/middleware.ts` runs `convexAuthNextjsMiddleware()` with the matcher from product-os-dashboard, only to handle the OAuth code exchange and cookies.
+No protected routes; every page is viewable. Protection is at the function level: `scans.create` requires a user id. `src/proxy.ts` runs `convexAuthNextjsMiddleware()` with the matcher from product-os-dashboard, only to handle the OAuth code exchange and cookies.
 
 ### User Session Management
 - Cookie max age 30 days (`cookieConfig: { maxAge: 60 * 60 * 24 * 30 }`).

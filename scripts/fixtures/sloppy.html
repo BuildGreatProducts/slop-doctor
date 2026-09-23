@@ -1,0 +1,76 @@
+<!doctype html>
+<!-- A deliberately sloppy landing page: the doctor's test patient. Every AI-slop tell in docs/SLOP-TAXONOMY.md, on purpose.
+     This file is a fixture, not app UI, so it is exempt from docs/DESIGN.md. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Synergize AI: Unlock the future of work</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #0b0b12; color: #e5e7eb; }
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 64px; }
+  nav .links a { color: #9ca3af; margin-left: 28px; text-decoration: none; }
+  .btn { display: inline-block; padding: 12px 22px; border-radius: 12px; font-weight: 600; text-decoration: none; }
+  .btn-grad { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; box-shadow: 0 0 40px rgba(139, 92, 246, .6); }
+  .btn-ghost { border: 1px solid #374151; color: #e5e7eb; margin-left: 12px; }
+  .hero { position: relative; text-align: center; padding: 120px 20px 100px; overflow: hidden;
+    background-image: linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+    background-size: 40px 40px; }
+  .orb { position: absolute; width: 520px; height: 520px; border-radius: 50%; filter: blur(120px); background: #7c3aed; opacity: .55; top: -120px; left: 50%; transform: translateX(-50%); }
+  .pill { position: relative; display: inline-block; padding: 6px 14px; border-radius: 999px; border: 1px solid #4c1d95; background: rgba(76, 29, 149, .35); color: #c4b5fd; font-size: 14px; }
+  h1 { position: relative; font-size: 64px; line-height: 1.05; margin: 24px auto 16px; max-width: 900px; letter-spacing: -0.02em; }
+  h1 .grad { background: linear-gradient(90deg, #818cf8, #e879f9); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h1 em { font-family: "Instrument Serif", Georgia, serif; font-weight: 400; }
+  .sub { position: relative; font-size: 20px; color: #9ca3af; max-width: 640px; margin: 0 auto 36px; }
+  .logos { display: flex; justify-content: center; gap: 56px; padding: 40px; color: #4b5563; font-weight: 700; font-size: 22px; letter-spacing: .05em; }
+  section { padding: 80px 64px; }
+  h2 { text-align: center; font-size: 40px; margin: 0 0 48px; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1100px; margin: 0 auto; }
+  .card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 28px; backdrop-filter: blur(12px); border-left: 3px solid #8b5cf6; }
+  .icon { width: 44px; height: 44px; border-radius: 12px; background: rgba(139,92,246,.15); display: grid; place-items: center; font-size: 22px; margin-bottom: 16px; }
+  .card h3 { margin: 0 0 8px; }
+  .card p { color: #9ca3af; margin: 0; line-height: 1.5; }
+  .stats { display: flex; justify-content: center; gap: 96px; text-align: center; }
+  .stats b { display: block; font-size: 48px; background: linear-gradient(90deg, #818cf8, #e879f9); -webkit-background-clip: text; color: transparent; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1100px; margin: 0 auto; }
+  .step span { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #6366f1; color: white; font-weight: 700; margin-bottom: 12px; }
+  .cta { text-align: center; margin: 40px 64px 80px; padding: 72px; border-radius: 24px; background: linear-gradient(135deg, #4f46e5, #9333ea); box-shadow: 0 0 80px rgba(147, 51, 234, .4); }
+  .cta h2 { margin-bottom: 16px; }
+  footer { padding: 40px 64px; color: #6b7280; border-top: 1px solid #1f2937; }
+</style>
+</head>
+<body>
+  <nav>
+    <strong>✨ Synergize</strong>
+    <div class="links"><a href="#">Features</a><a href="#">Pricing</a><a href="#">Docs</a><a class="btn btn-grad" href="#">Get started</a></div>
+  </nav>
+  <header class="hero">
+    <div class="orb"></div>
+    <span class="pill">✨ New: AI-powered workflows →</span>
+    <h1>Build the future of work, <em>effortlessly</em> with <span class="grad">AI</span></h1>
+    <p class="sub">Synergize is the all-in-one platform that helps teams seamlessly unlock their potential — supercharge productivity and elevate collaboration.</p>
+    <a class="btn btn-grad" href="#">Start for free</a><a class="btn btn-ghost" href="#">Book a demo</a>
+  </header>
+  <div class="logos"><span>ACME</span><span>Globex</span><span>Initech</span><span>Umbrella</span><span>Hooli</span></div>
+  <section>
+    <h2>Everything you need. Nothing you don't.</h2>
+    <div class="cards">
+      <div class="card"><div class="icon">⚡</div><h3>Lightning fast</h3><p>Streamline your workflow with cutting-edge AI — it's not just fast, it's instant.</p></div>
+      <div class="card"><div class="icon">🔒</div><h3>Secure by default</h3><p>Robust, enterprise-grade security that empowers your team.</p></div>
+      <div class="card"><div class="icon">🚀</div><h3>Scale effortlessly</h3><p>Harness the power of AI to transform your business — and leverage next-level insights.</p></div>
+    </div>
+  </section>
+  <section class="stats"><div><b>10k+</b>Teams</div><div><b>99.9%</b>Uptime</div><div><b>5x</b>Faster</div></section>
+  <section>
+    <h2>Get started in 3 simple steps</h2>
+    <div class="steps">
+      <div class="step"><span>1</span><h3>Connect</h3><p>Link your tools in seconds.</p></div>
+      <div class="step"><span>2</span><h3>Automate</h3><p>Let AI do the heavy lifting.</p></div>
+      <div class="step"><span>3</span><h3>Scale</h3><p>Grow without limits.</p></div>
+    </div>
+  </section>
+  <div class="cta"><h2>Ready to revolutionize your workflow?</h2><p>Fast. Simple. Powerful.</p><a class="btn btn-ghost" href="#">Get started free</a></div>
+  <footer>© 2026 Synergize Inc. Lorem ipsum dolor sit amet.</footer>
+</body>
+</html>

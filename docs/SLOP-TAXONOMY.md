@@ -290,6 +290,13 @@ Each present vital sign subtracts 5 from the Slop Index.
 | `concrete_copy` | Concrete copy | Exam (page): Does `page.copy` include specific details such as real customer names, precise numbers with context, or named use cases? |
 | `unconventional_layout` | Unconventional layout | Exam (page): Does the page layout depart clearly from the standard template of centred hero, logo strip, three feature cards, testimonials, pricing and CTA? |
 
+Criteria for the exam vital signs (`true` / `false`):
+
+- `custom_imagery`: The region descriptions mention real photography or illustration specific to this product. / The imagery is stock, abstract, generic, or absent.
+- `product_ui`: The region descriptions mention product screenshots, UI previews or recordings of the product. / No part of the page shows the product's actual interface.
+- `concrete_copy`: The copy includes specific names, precise figures with context, or named use cases. / The copy is general and could describe many products.
+- `unconventional_layout`: The sequence and layout of `page.regions` is clearly different from that standard template. / The page follows that standard template, or close to it.
+
 A vital-sign Noul counts as present at ≥ 0.65.
 
 ## Determinations (exam, page-level)

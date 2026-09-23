@@ -1,0 +1,114 @@
+// Deterministic lab tests over the page's markdown, HTML and fonts (docs/SLOP-TAXONOMY.md § Lab symptoms).
+
+import {
+  BUZZWORD_MIN_DISTINCT,
+  BUZZWORDS,
+  DEFAULT_FONTS,
+  EM_DASH_MIN_COUNT,
+  EM_DASH_MIN_PER_100_WORDS,
+  GENERATOR_FINGERPRINTS,
+  LOREM_PHRASES,
+  SYMPTOMS_BY_KEY,
+  TREND_FONTS,
+} from "./taxonomy";
+
+export type FindingInput = {
+  key: string;
+  kind: "symptom" | "vital";
+  source: "lab" | "exam";
+  regionId?: string;
+  probability: number;
+  band: "present" | "inconclusive";
+  weight: number;
+};
+
+export type LabSignals = {
+  wordCount: number;
+  emDashCount: number;
+  buzzwordHits: string[];
+  loremHits: string[];
+  generator?: string;
+  copyExcerpt: string;
+};
+
+const COPY_EXCERPT_CHARS = 4000;
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Whole-phrase, case-insensitive. Word boundaries only where the phrase starts or ends with a word character.
+function phraseRegExp(phrase: string): RegExp {
+  const start = /^\w/.test(phrase) ? "\\b" : "";
+  const end = /\w$/.test(phrase) ? "\\b" : "";
+  return new RegExp(`${start}${escapeRegExp(phrase).replace(/'/g, "['’]")}${end}`, "i");
+}
+
+export function plainText(markdown: string): string {
+  return markdown
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ") // images
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1") // links → text
+    .replace(/<[^>]+>/g, " ")
+    .replace(/[#*_>`|]/g, " ");
+}
+
+export function countWords(markdown: string): number {
+  return plainText(markdown).split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
+}
+
+const normalizeFont = (f: string) => f.trim().replace(/^["']|["']$/g, "").toLowerCase();
+const inList = (font: string, list: string[]) => list.some((f) => f.toLowerCase() === normalizeFont(font));
+
+function symptom(key: string): FindingInput {
+  return { key, kind: "symptom", source: "lab", probability: 1, band: "present", weight: SYMPTOMS_BY_KEY[key].weight };
+}
+
+export function detectGenerator(html: string): string | undefined {
+  return GENERATOR_FINGERPRINTS.find((g) => g.patterns.some((p) => p.test(html)))?.birthplace;
+}
+
+export function runLabs(input: { markdown: string; html: string; fonts: string[] }): {
+  signals: LabSignals;
+  findings: FindingInput[];
+} {
+  const text = plainText(input.markdown);
+  const wordCount = countWords(input.markdown);
+  const emDashCount = (input.markdown.match(/—/g) ?? []).length;
+  const buzzwordHits = BUZZWORDS.filter((b) => phraseRegExp(b).test(text));
+  const loremHits = LOREM_PHRASES.filter((p) => phraseRegExp(p).test(text));
+  const generator = detectGenerator(input.html);
+
+  const findings: FindingInput[] = [];
+  const emDashRate = wordCount > 0 ? (emDashCount / wordCount) * 100 : 0;
+  if (emDashCount >= EM_DASH_MIN_COUNT && emDashRate >= EM_DASH_MIN_PER_100_WORDS) findings.push(symptom("em_dash"));
+  if (buzzwordHits.length >= BUZZWORD_MIN_DISTINCT) findings.push(symptom("buzzwords"));
+  if (loremHits.length > 0) findings.push(symptom("lorem"));
+
+  const primary = input.fonts[0];
+  if (primary !== undefined) {
+    if (inList(primary, DEFAULT_FONTS)) findings.push(symptom("inter_itis"));
+    if (input.fonts.some((f) => inList(f, TREND_FONTS))) findings.push(symptom("font_fashion"));
+    if (!inList(primary, DEFAULT_FONTS) && !inList(primary, TREND_FONTS)) {
+      findings.push({
+        key: "distinctive_type",
+        kind: "vital",
+        source: "lab",
+        probability: 1,
+        band: "present",
+        weight: 0,
+      });
+    }
+  }
+
+  return {
+    signals: {
+      wordCount,
+      emDashCount,
+      buzzwordHits,
+      loremHits,
+      generator,
+      copyExcerpt: input.markdown.slice(0, COPY_EXCERPT_CHARS),
+    },
+    findings,
+  };
+}

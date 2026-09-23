@@ -1,0 +1,35 @@
+/* Chart. Specs: docs/PRD.md § 8 Screen: Chart. */
+.chart { display: flex; flex-direction: column; gap: var(--space-xl); padding-block: var(--space-xl) var(--space-2xl); }
+
+.band { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-xl); align-items: end; }
+.band h1 { overflow-wrap: anywhere; }
+.bandText { display: flex; flex-direction: column; gap: var(--space-sm); }
+.index { display: flex; flex-direction: column; gap: var(--space-sm); min-width: 280px; }
+.figure {
+  font-family: var(--font-mono); font-size: var(--type-display-lg-size); font-weight: var(--type-display-lg-weight);
+  line-height: var(--type-display-lg-lh); letter-spacing: var(--type-display-lg-ls);
+}
+
+.columns { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-gutter); align-items: start; }
+.shotColumn { min-width: 0; position: sticky; top: var(--space-lg); }
+.details { display: flex; flex-direction: column; gap: var(--space-xl); min-width: 0; }
+
+.cards { display: grid; gap: var(--space-md); }
+.cards :global(.card) { display: flex; flex-direction: column; gap: var(--space-xs); }
+
+.row { grid-template-columns: 1fr auto auto; gap: var(--space-sm); padding: var(--space-sm) 0; }
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.notes { display: flex; flex-direction: column; gap: var(--space-md); }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+
+.errorBlock { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-lg); max-width: 720px; padding-block: var(--space-2xl); }
+
+@media (max-width: 1023px) {
+  .columns { grid-template-columns: minmax(0, 1fr); }
+  .shotColumn { position: static; }
+  .band { grid-template-columns: minmax(0, 1fr); }
+  .index { min-width: 0; }
+}
+@media (max-width: 600px) {
+  .band h1 { font-size: var(--type-headline-md-size); line-height: var(--type-headline-md-lh); letter-spacing: var(--type-headline-md-ls); }
+}

@@ -1,0 +1,30 @@
+/* Design tokens — generated from docs/DESIGN.md (mirrors docs/DESIGN.html :root exactly).
+   Every colour, size, radius and spacing in the app comes from here. Never hardcode a value. */
+:root{
+/* colors */
+--color-primary:#F55200; --color-on-primary:#141414; --color-primary-container:#FFE1CC; --color-on-primary-container:#7A2600; --color-primary-deep:#C43E00;
+--color-surface:#FDFCFA; --color-surface-container:#F4F2EE; --color-surface-container-high:#EAE7E1;
+--color-on-surface:#141414; --color-on-surface-variant:#625D55; --color-pencil:#4A4741;
+--color-outline:#CFCAC0; --color-outline-variant:#E6E2DA; --color-grid-line:#E6E2DA;
+--color-inverse-surface:#141414; --color-inverse-on-surface:#FDFCFA;
+--color-error:#B8321E; --color-on-error:#FFFFFF; --color-error-container:#F8DDD8; --color-success:#1E7A3C; --color-warning:#8A5300;
+/* typography */
+--font-sans:"Switzer","Helvetica Neue",Arial,sans-serif; --font-mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+--type-display-lg-size:56px; --type-display-lg-weight:600; --type-display-lg-lh:1.05; --type-display-lg-ls:-0.02em;
+--type-headline-lg-size:36px; --type-headline-lg-weight:600; --type-headline-lg-lh:1.15; --type-headline-lg-ls:-0.015em;
+--type-headline-md-size:24px; --type-headline-md-weight:600; --type-headline-md-lh:1.25; --type-headline-md-ls:-0.01em;
+--type-title-md-size:18px; --type-title-md-weight:600; --type-title-md-lh:1.35;
+--type-body-lg-size:18px; --type-body-lg-weight:400; --type-body-lg-lh:1.55;
+--type-body-md-size:16px; --type-body-md-weight:400; --type-body-md-lh:1.55;
+--type-body-sm-size:14px; --type-body-sm-weight:400; --type-body-sm-lh:1.5;
+--type-label-md-size:14px; --type-label-md-weight:600; --type-label-md-lh:1.4;
+--type-label-mono-size:12px; --type-label-mono-weight:500; --type-label-mono-lh:1.4; --type-label-mono-ls:0.06em;
+/* rounded */
+--rounded-none:0; --rounded-sm:4px; --rounded-md:8px; --rounded-lg:12px; --rounded-full:9999px;
+/* spacing */
+--space-xs:4px; --space-sm:8px; --space-md:16px; --space-lg:24px; --space-xl:40px; --space-2xl:64px; --space-gutter:24px; --space-margin:48px;
+/* patterns */
+--shadow-menu:0 2px 8px rgba(20,20,20,.08);
+--hatch:repeating-linear-gradient(45deg,var(--color-outline) 0,var(--color-outline) 1px,transparent 1px,transparent 6px);
+--paper-grid:linear-gradient(var(--color-grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--color-grid-line) 1px,transparent 1px);
+}

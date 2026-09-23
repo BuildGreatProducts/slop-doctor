@@ -1,0 +1,22 @@
+/* Scanner. Specs: docs/DESIGN.md § Slop Doctor mapping. */
+.frame { position: relative; border: 1px solid var(--color-outline-variant); border-radius: var(--rounded-md); overflow-y: auto; max-height: 70vh; background: var(--color-surface); }
+.frame:focus-visible { outline-offset: 2px; }
+.canvas { position: relative; }
+.shot { display: block; width: 100%; height: auto; }
+
+/* "Not yet": the hatch covers what hasn't been examined, at partial opacity so the page shows through. */
+.hatchMask { position: absolute; left: 0; right: 0; bottom: 0; opacity: 0.85; transition: top 600ms linear; }
+.rule { transition: top 600ms linear; }
+.looping { animation: sweep 4s linear infinite; }
+@keyframes sweep { from { top: 0%; } to { top: 100%; } }
+
+.box { animation: appear 200ms ease-out; }
+@keyframes appear { from { opacity: 0; } to { opacity: 1; } }
+
+.empty { min-height: 320px; display: grid; place-content: center; justify-items: center; gap: var(--space-md); text-align: center; padding: var(--space-xl); }
+
+@media (max-width: 767px) { .frame { max-height: 60vh; } }
+@media (prefers-reduced-motion: reduce) {
+  .looping, .box { animation: none; }
+  .rule, .hatchMask { transition: none; }
+}
