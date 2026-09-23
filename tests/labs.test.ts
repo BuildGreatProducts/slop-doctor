@@ -2,7 +2,12 @@ import { describe, expect, test } from "vitest";
 import { countWords, detectGenerator, runLabs } from "../convex/lib/labs";
 
 const words = (n: number) => Array.from({ length: n }, (_, i) => `word${i}`).join(" ");
-const keys = (r: ReturnType<typeof runLabs>) => r.findings.map((f) => f.key).sort();
+/** Keys of the lab tests that found something. */
+const keys = (r: ReturnType<typeof runLabs>) =>
+  r.findings
+    .filter((f) => f.band === "present")
+    .map((f) => f.key)
+    .sort();
 const base = { html: "", host: "example.com", fonts: [] as string[] };
 
 describe("em dash", () => {
@@ -72,13 +77,15 @@ describe("fonts", () => {
 
   test("a distinctive primary font is a vital sign", () => {
     const r = runLabs({ ...base, markdown: "", fonts: ['"Switzer"'] });
-    expect(r.findings).toEqual([
+    expect(r.findings.filter((f) => f.kind === "vital")).toEqual([
       { key: "distinctive_type", kind: "vital", source: "lab", probability: 1, band: "present", weight: 0 },
     ]);
   });
 
   test("no fonts skips font labs", () => {
-    expect(keys(runLabs({ ...base, markdown: "" }))).toEqual([]);
+    const r = runLabs({ ...base, markdown: "" });
+    expect(r.findings.map((f) => f.key)).not.toContain("inter_itis");
+    expect(r.findings.map((f) => f.key)).not.toContain("font_fashion");
   });
 });
 
@@ -115,6 +122,18 @@ describe("generator fingerprints", () => {
     runLabs({ markdown: "[".repeat(300_000), html, host: "example.com", fonts: [] });
     expect(performance.now() - started).toBeLessThan(1000);
   });
+});
+
+test("every lab test is recorded, found (100%) or not (0%)", () => {
+  const r = runLabs({ ...base, markdown: "Invoices for plumbers in Leeds.", fonts: ["Switzer"] });
+  const symptoms = r.findings.filter((f) => f.kind === "symptom");
+  expect(symptoms.map((f) => [f.key, f.probability, f.band])).toEqual([
+    ["em_dash", 0, "absent"],
+    ["buzzwords", 0, "absent"],
+    ["lorem", 0, "absent"],
+    ["inter_itis", 0, "absent"],
+    ["font_fashion", 0, "absent"],
+  ]);
 });
 
 test("countWords strips markdown syntax", () => {

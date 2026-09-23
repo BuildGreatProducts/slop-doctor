@@ -47,7 +47,7 @@ Rules of thumb:
 - Buttons are {Verb} {noun}: "Start examination", "Copy discharge papers".
 - Second person, present tense, active voice.
 - Numerals always: "10 examinations", "3 symptoms".
-- Probabilities are shown as `P 0.91` in mono tags and as "91% sure" in prose.
+- Scores are shown as a whole-number percentage (`91%`), in mono, next to a symptom bar or in a region tag.
 - Never "Are you sure?". Never a bare "OK".
 
 ## Surfaces
@@ -101,11 +101,12 @@ Rotating quips while waiting (every 4 s, in order):
 
 ### Examination (scanner)
 - Scan readout: Scanning · Y {px}px · Region {nn}/{total}
-- Region tag: {nn} · {Symptom name} · P {0.00}
-- Inconclusive region tag: {nn} · {Symptom name} · Inconclusive
+- Region tag: {nn} · {Symptom name} · {pct}% (+{n} when more symptoms are present)
+- Region tag, nothing found: {nn} · No symptoms
 - Lab results heading: Lab results
 - Lab results empty: Waiting for the first result.
-- Source chips: "Exam", "Lab"
+- Lab results group headings (mono): Lab tests · Region {nn} · {Section name} · Whole page
+- Section names: Navigation, Hero, Logo strip, Features, Testimonials, Pricing, Stats, Steps, Call to action, Footer, Section
 - Meter label: Slop Index {n}/100
 
 ### Chart
@@ -115,9 +116,11 @@ Rotating quips while waiting (every 4 s, in order):
 - Archetype label: Presents as
 - Birthplace label: Suspected place of birth
 - Birthplace confirmed tag: Confirmed by lab
-- Certainty label: Doctor's certainty {nn}%
-- Inconclusive: Inconclusive: second opinion advised
+- Certainty (50% or more): Doctor's certainty {nn}%
+- Certainty (under 50%): A hunch · {nn}% sure
+- Prognosis with no usable answer (taken from the tier): Based on the lab results
 - Prognosis label: Prognosis
+- Every determination card always shows a name, a one-liner and one of the lines above. Never "Inconclusive".
 - Disagreement note: The doctor and the lab disagree.
 - Symptom groups: "Visual symptoms", "Copy symptoms", "Lab results"
 - No symptoms: No symptoms found. The doctor is suspicious but impressed.
@@ -140,6 +143,39 @@ Rotating quips while waiting (every 4 s, in order):
 
 ### Archetype, birthplace and prognosis labels
 Use the names in `docs/SLOP-TAXONOMY.md` § Determinations exactly. Display labels for birthplace: v0, Lovable, Bolt, Framer, Webflow template, Tailwind starter kit, Website builder theme, A human designer.
+
+One-liners (every answer has one):
+
+| Archetype | One-liner |
+|---|---|
+| The SaaS Clone | Could be any of 4,000 dashboards. Probably is. |
+| The YC Demo Day | Raising a pre-seed round in the hero section. |
+| The Crypto Fever Dream | Glows in the dark. Promises the moon. |
+| The Linear Lookalike | Moody, precise and suspiciously familiar. |
+| The Stripe Tribute Act | Gradient waves as far as the eye can see. |
+| The Notion Wannabe | Hand-drawn doodles, hand-me-down layout. |
+| The Template Special | The placeholder personality is still in the box. |
+| The Actually Designed | Someone made decisions here. Brave ones. |
+| (no usable answer) A medical mystery | Presents as nothing the doctor has seen before. |
+
+| Birthplace | One-liner |
+|---|---|
+| v0 | Born in a shadcn nursery, raised on Geist. |
+| Lovable | Delivered by Lovable, gradients and all. |
+| Bolt | Assembled at speed by Bolt. |
+| Framer | Smoothly animated out of Framer. |
+| Webflow template | Adopted from the Webflow template shelter. |
+| Tailwind starter kit | Grew up in a Tailwind starter kit. |
+| Website builder theme | Came flat-packed from a website builder. |
+| A human designer | Raised by a human designer. Increasingly rare. |
+| (no usable answer) Place of birth unknown | Found on the hospital steps with no paperwork. |
+
+| Prognosis | One-liner |
+|---|---|
+| Full recovery | Discharge expected by lunchtime. |
+| Manageable with treatment | A short course of prescriptions should clear it up. |
+| Chronic | Long-term care recommended. |
+| Terminal | We've made the patient comfortable. |
 
 ### Errors
 Each says what happened, why, and what to do next.

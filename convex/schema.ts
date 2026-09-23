@@ -86,7 +86,8 @@ export const findingInput = v.object({
   source: v.union(v.literal("lab"), v.literal("exam")),
   regionId: v.optional(v.string()),
   probability: v.number(),
-  band: v.union(v.literal("present"), v.literal("inconclusive")),
+  // Every symptom check is stored, including low scores ("absent"), so the chart can show them all.
+  band: v.union(v.literal("present"), v.literal("inconclusive"), v.literal("absent")),
   weight: v.number(),
 });
 

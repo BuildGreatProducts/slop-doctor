@@ -149,7 +149,7 @@ function Examination({
         <SlopOMeter index={index} />
       </div>
       <div className={styles.resultsArea}>
-        <LabResults revealed={revealed} />
+        <LabResults revealed={revealed} regions={scan.regions ?? []} />
       </div>
     </div>
   );

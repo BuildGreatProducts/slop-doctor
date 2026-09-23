@@ -26,13 +26,15 @@ There are two kinds of test:
 |---|---|---|---|
 | ≥ 0.65 | Present | Symptom | Yes, weighted by p |
 | 0.35 – 0.65 | Inconclusive | "Inconclusive: second opinion advised" | No |
-| < 0.35 | Absent | Not shown | No |
+| < 0.35 | Absent | Shown as a low score | No |
 
-A region-level symptom takes the **highest** p across the regions it was asked about. Every region where it is present gets a region box and tag.
+Every symptom check is stored, whatever its score, so the doctor can show all of them while scanning and on the chart. Only present findings count toward the index. A region-level symptom takes the **highest** p across the regions it was asked about. Lab tests are stored as 100% (found) or 0% (not found).
+
+On screen every score is a percentage with a bar: green under 20%, yellow (the `warning` token) from 20% to 70%, red over 70% (`docs/DESIGN.md` § Slop Doctor mapping). The colours describe the score only; the bands above decide what counts.
 
 ### Choice and Score confidence
 
-Choice and Score answers with `confidence < 0.5` are shown as inconclusive and don't feed the index.
+Score answers (`templatedness`) with `confidence < 0.5` don't feed the index. Choice answers are always shown: at 50% or more as the doctor's certainty, below that as "a hunch". A missing or invalid choice falls back to a fun default, and a missing prognosis is taken from the tier (`docs/COPY.md` § Chart).
 
 ## Jev state shapes
 

@@ -1,21 +1,15 @@
 "use client";
 
-import {
-  ARCHETYPE_NAMES,
-  CONFIDENCE_MIN,
-  PROGNOSIS_NAMES,
-  PROGNOSIS_TIERS,
-  SYMPTOMS_BY_KEY,
-  type SymptomGroup,
-  type TierKey,
-} from "../../../convex/lib/taxonomy";
-import { birthplaceLabels, chart, scanner, tiers } from "@/lib/copy";
+import { SYMPTOMS_BY_KEY, type SymptomGroup, type TierKey } from "../../../convex/lib/taxonomy";
+import { chart, regionKindLabels, tiers } from "@/lib/copy";
+import { type Determination, describeDeterminations } from "@/lib/determinations";
 import { findingName } from "@/lib/findings";
 import type { Finding, PublicScan } from "@/lib/types";
 import styles from "./Chart.module.css";
 import { DoctorsNote } from "./DoctorsNote";
 import { Scanner } from "./Scanner";
 import { SlopOMeter } from "./SlopOMeter";
+import { SymptomBar } from "./SymptomBar";
 
 type Props = {
   scan: PublicScan;
@@ -28,34 +22,45 @@ type Props = {
   onExamineAnother: () => void;
 };
 
-type Row = { key: string; name: string; p: number; present: boolean; where: string[]; weight: number };
+type Row = { key: string; name: string; p: number; where: string[]; weight: number };
 
+/** Every symptom checked, one row each at its highest score across the page, highest first. */
 function groupRows(findings: Finding[], regionKinds: Map<string, string>): Record<SymptomGroup, Row[]> {
   const rows = new Map<string, Row>();
   for (const f of findings) {
     if (f.kind !== "symptom") continue;
-    const row = rows.get(f.key) ?? { key: f.key, name: findingName(f.key), p: 0, present: false, where: [], weight: f.weight };
-    if (f.band === "present") row.present = true;
-    if (f.band === "present" || !row.present) row.p = Math.max(row.p, f.probability);
+    const row = rows.get(f.key) ?? { key: f.key, name: findingName(f.key), p: 0, where: [], weight: f.weight };
+    row.p = Math.max(row.p, f.probability);
     const kind = f.regionId ? regionKinds.get(f.regionId) : undefined;
-    if (kind && !row.where.includes(kind)) row.where.push(kind);
+    const label = kind ? (regionKindLabels[kind] ?? kind) : undefined;
+    if (label && f.band !== "absent" && !row.where.includes(label)) row.where.push(label);
     rows.set(f.key, row);
   }
   const groups: Record<SymptomGroup, Row[]> = { visual: [], copy: [], lab: [] };
   for (const row of rows.values()) groups[SYMPTOMS_BY_KEY[row.key]?.group ?? "visual"].push(row);
-  const rank = (r: Row) => (r.present ? 1 : 0) * 100 + r.weight * r.p;
-  for (const g of Object.values(groups)) g.sort((a, b) => rank(b) - rank(a));
+  for (const g of Object.values(groups)) g.sort((a, b) => b.p - a.p || b.weight - a.weight);
   return groups;
+}
+
+function DeterminationCard({ label, value }: { label: string; value: Determination }) {
+  return (
+    <div className="card">
+      <span className="mono muted">{label}</span>
+      <p className="t-title-md">{value.name}</p>
+      <p className="t-body-sm">{value.line}</p>
+      {value.meta && <span className="mono muted">{value.meta}</span>}
+      {value.note && <span className="t-body-sm muted">{value.note}</span>}
+    </div>
+  );
 }
 
 export function Chart({ scan, findings, cached, fallbackLink, onCopyLink, onSecondOpinion, onExamineAnother }: Props) {
   const tier = (scan.tier ?? "clean") as TierKey;
-  const d = scan.determinations;
   const regionKinds = new Map((scan.regions ?? []).map((r) => [r.id, r.kind]));
   const groups = groupRows(findings, regionKinds);
   const vitals = findings.filter((f) => f.kind === "vital" && f.band === "present");
-  const hasSymptoms = Object.values(groups).some((g) => g.length > 0);
-  const disagree = d && d.prognosis.confidence >= CONFIDENCE_MIN && !PROGNOSIS_TIERS[d.prognosis.choice]?.includes(tier);
+  const hasSymptoms = Object.values(groups).some((g) => g.some((r) => r.p >= 0.65));
+  const { archetype, birthplace, prognosis } = describeDeterminations(scan.determinations, tier);
 
   return (
     <div className={styles.chart}>
@@ -80,36 +85,11 @@ export function Chart({ scan, findings, cached, fallbackLink, onCopyLink, onSeco
         </div>
 
         <div className={styles.details}>
-          {d && (
-            <div className={styles.cards}>
-              <div className="card">
-                <span className="mono muted">{chart.archetypeLabel}</span>
-                <p className="t-title-md">
-                  {d.archetype.confidence >= CONFIDENCE_MIN ? ARCHETYPE_NAMES[d.archetype.choice] : chart.inconclusive}
-                </p>
-              </div>
-              <div className="card">
-                <span className="mono muted">{chart.birthplaceLabel}</span>
-                {d.birthplaceConfirmed || d.birthplace.confidence >= CONFIDENCE_MIN ? (
-                  <>
-                    <p className="t-title-md">{birthplaceLabels[d.birthplace.choice] ?? d.birthplace.choice}</p>
-                    <span className="mono muted">
-                      {d.birthplaceConfirmed ? chart.birthplaceConfirmed : chart.certainty(Math.round(d.birthplace.confidence * 100))}
-                    </span>
-                  </>
-                ) : (
-                  <p className="t-title-md">{chart.inconclusive}</p>
-                )}
-              </div>
-              <div className="card">
-                <span className="mono muted">{chart.prognosisLabel}</span>
-                <p className="t-title-md">
-                  {d.prognosis.confidence >= CONFIDENCE_MIN ? PROGNOSIS_NAMES[d.prognosis.choice] : chart.inconclusive}
-                </p>
-                {disagree && <span className="t-body-sm muted">{chart.disagreement}</span>}
-              </div>
-            </div>
-          )}
+          <div className={styles.cards}>
+            <DeterminationCard label={chart.archetypeLabel} value={archetype} />
+            <DeterminationCard label={chart.birthplaceLabel} value={birthplace} />
+            <DeterminationCard label={chart.prognosisLabel} value={prognosis} />
+          </div>
 
           {!hasSymptoms && <p className="t-body-md">{chart.noSymptoms}</p>}
           {(["visual", "copy", "lab"] as const).map((g) =>
@@ -123,7 +103,7 @@ export function Chart({ scan, findings, cached, fallbackLink, onCopyLink, onSeco
                     <li key={row.key} className={`list-item ${styles.row}`}>
                       <span className="t-label-md">{row.name}</span>
                       <span className="mono muted">{row.where.join(" · ")}</span>
-                      <span className="mono">{row.present ? scanner.probability(row.p) : scanner.inconclusive}</span>
+                      <SymptomBar p={row.p} />
                     </li>
                   ))}
                 </ul>

@@ -15,8 +15,11 @@
 
 .meter { display: flex; flex-direction: column; gap: var(--space-sm); }
 
-.results { max-height: 50vh; overflow-y: auto; }
-.resultRow { grid-template-columns: 1fr auto auto; gap: var(--space-sm); padding: var(--space-sm) 0; }
+.results { max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-md); scroll-behavior: smooth; }
+.resultGroup { display: flex; flex-direction: column; gap: var(--space-xs); }
+.resultRow { grid-template-columns: 1fr auto; gap: var(--space-sm); padding: var(--space-xs) 0; animation: row-in 200ms ease-out both; }
+@keyframes row-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .results { scroll-behavior: auto; } .resultRow { animation: none; } }
 
 @media (max-width: 1023px) {
   .layout { grid-template-columns: 1fr; grid-template-rows: none; grid-template-areas: "wait" "scan" "meter" "results"; }

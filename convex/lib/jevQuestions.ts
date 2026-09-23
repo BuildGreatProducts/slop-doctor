@@ -104,7 +104,8 @@ function noulFinding(
 ): FindingInput | null {
   if (!answer || answer.type !== "noul" || !isUnit(answer.noul)) return null;
   const band = bandFor(answer.noul);
-  if (band === "absent") return null;
+  // Symptoms keep low scores so every check shows on the chart; absent vital signs are simply not signs of life.
+  if (band === "absent" && kind === "vital") return null;
   return { key, kind, source: "exam", probability: answer.noul, band, weight, ...(regionId ? { regionId } : {}) };
 }
 

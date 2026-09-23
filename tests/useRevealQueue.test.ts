@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { nextToReveal, sortForReveal } from "../src/lib/revealQueue";
+import { nextToReveal, revealDelay, sortForReveal } from "../src/lib/revealQueue";
 
 type F = { _id: string; source: "lab" | "exam"; regionId?: string; order: number };
 const regionIndex = new Map([
@@ -39,5 +39,22 @@ describe("reveal order", () => {
 
   test("nothing left returns undefined", () => {
     expect(nextToReveal(findings, new Set(findings.map((f) => f._id)), regionIndex)).toBeUndefined();
+  });
+});
+
+describe("reveal pacing", () => {
+  const pace = { intervalMs: 160, groupPauseMs: 650 };
+  const a = (id: string, regionId?: string, source: "lab" | "exam" = "exam") => ({ _id: id, source, regionId, order: 0 });
+
+  test("the first reveal and every move to a new part of the page pause longer", () => {
+    expect(revealDelay(a("x", "r01"), undefined, pace)).toBe(650);
+    expect(revealDelay(a("y", "r02"), a("x", "r01"), pace)).toBe(650);
+    expect(revealDelay(a("p"), a("x", "r02"), pace)).toBe(650);
+    expect(revealDelay(a("x", "r01"), a("l", undefined, "lab"), pace)).toBe(650);
+  });
+
+  test("checks within the same region follow quickly", () => {
+    expect(revealDelay(a("y", "r01"), a("x", "r01"), pace)).toBe(160);
+    expect(revealDelay(a("m", undefined, "lab"), a("l", undefined, "lab"), pace)).toBe(160);
   });
 });

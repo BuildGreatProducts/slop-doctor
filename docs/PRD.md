@@ -28,7 +28,7 @@ Generic "is this AI?" checkers return a number. Slop Doctor draws each symptom o
 
 ### Magic Moment
 
-The scanner's rule stops on the visitor's hero section, draws a pencil box around it and pins a tag: `03 · PURPLE GRADIENT FEVER · P 0.91`. The Slop-o-meter ticks up a segment.
+The scanner's rule stops on the visitor's hero section, draws a pencil box around it and pins a tag: `03 · PURPLE GRADIENT FEVER · 91%`. The Slop-o-meter ticks up a segment.
 
 To enable it:
 
@@ -372,7 +372,7 @@ export default defineSchema({
     source: v.union(v.literal("lab"), v.literal("exam")),
     regionId: v.optional(v.string()),    // set for region-level exam findings
     probability: v.number(),             // 0–1 (lab = 1)
-    band: v.union(v.literal("present"), v.literal("inconclusive")), // absent answers are not stored
+    band: v.union(v.literal("present"), v.literal("inconclusive"), v.literal("absent")), // every check is stored
     weight: v.number(),                  // from taxonomy (0 for vital signs)
     order: v.number(),                   // insertion sequence within the scan
     createdAt: v.number(),
@@ -525,7 +525,8 @@ As the Vibe Builder, I want a chart with a clear diagnosis and prescriptions so 
 
 Acceptance Criteria:
 - [ ] Given the examination completes, then I see the Slop Index, diagnosis, archetype, suspected place of birth with certainty, symptoms grouped as visual, copy and lab, vital signs and up to 3 prescriptions.
-- [ ] Given a determination has confidence < 0.5, then it reads "Inconclusive: second opinion advised".
+- [ ] Given a determination has confidence < 0.5, then it still names Jev's top answer with its one-liner, marked "A hunch · {nn}% sure".
+- [ ] Given a determination is missing, then the card shows a fun fallback (and the prognosis follows the tier); it never reads "Inconclusive".
 - [ ] Given the lab fingerprinted a generator, then the place of birth shows "Confirmed by lab".
 
 **US-005: Share my discharge papers**
@@ -634,7 +635,7 @@ Related Stories: US-003
 **FR-007: Diagnose (Jev)**
 Priority: P0
 Description: `pipeline.diagnose.run` builds one page call and one call per region (FR-008 builders). It runs them with `Promise.allSettled`, and each call's `.then` immediately writes its findings via `addFindings`:
-- present and inconclusive bands only (`docs/SLOP-TAXONOMY.md` § Probability bands)
+- every symptom answer, low scores included (`docs/SLOP-TAXONOMY.md` § Probability bands); vital signs only when not absent
 - vital-sign Nouls stored with `kind: "vital"`
 
 After all calls settle:
@@ -699,7 +700,7 @@ Related Stories: US-003
 
 **FR-013: Reveal queue**
 Priority: P0
-Description: `useRevealQueue(findings, { intervalMs: 450, instant })` returns `revealed`, a prefix of the findings. It adds one item per interval while the prefix is shorter than the input. `instant` (reduced motion, static mode or a completed scan on first load) returns everything at once. Lab findings (no region) reveal first. Region findings follow in region order, then page-level findings.
+Description: `useRevealQueue(findings, { intervalMs: 450, instant })` returns `revealed`, a prefix of the findings. It reveals the next finding after 160 ms when it's in the same part of the page as the last one, or 650 ms when the scan moves to a new part, so the doctor visibly checks each symptom in turn. `instant` (reduced motion, static mode or a completed scan on first load) returns everything at once. Lab findings (no region) reveal first. Region findings follow in region order, then page-level findings.
 Acceptance Criteria: unit test with fake timers.
 Related Stories: US-003
 
@@ -707,7 +708,7 @@ Related Stories: US-003
 Priority: P0
 Description:
 - **`SlopOMeter`:** ten `rung` segments (filled segments use `inverse-surface` per `docs/DESIGN.md` § Slop Doctor mapping). Filled = `ceil(index / 10)` using `computeSlopIndex` over the revealed findings (plus templatedness once `determinations` exist). The label is `Slop Index {n}/100`.
-- **`LabResults`:** a `list-item` list of the revealed findings, newest at the bottom. Each row has the symptom or vital-sign name, a `lab`/`exam` chip and `P 0.00` or "Inconclusive".
+- **`LabResults`:** a `list-item` list of the revealed findings, newest at the bottom. Every symptom check appears as it's revealed, grouped under Lab tests, Region {nn} · {section} and Whole page, with a `symptom-bar` (percentage and colour-coded bar that grows in). The list scrolls to follow the scan.
 Acceptance Criteria: once all findings are revealed on a complete scan, the meter figure equals `scan.slopIndex`.
 Related Stories: US-003
 
