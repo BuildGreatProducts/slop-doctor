@@ -746,6 +746,12 @@ Description:
 Acceptance Criteria: the image renders for sloppy, clean and missing charts; the popup's links are prefilled; it works on mobile; Escape closes it.
 Related Stories: US-005
 
+**FR-022: Academy referral**
+Priority: P1
+Description: Every chart ends with a full-width paper-grid band referring the visitor to the AI Product Academy: eyebrow, headline, one paragraph, and a primary button linking to `https://www.skool.com/aiapps/about` in a new tab (`rel="noopener noreferrer"`). Copy in `docs/COPY.md` § Academy referral.
+Acceptance Criteria: the band appears at the bottom of every finished chart, at full frame width, on desktop and mobile.
+Related Stories: US-004
+
 **FR-017: Second opinion**
 Priority: P1
 Description: "Get a second opinion" calls `scans.rescan({ scanId })`, which reads the stored URL server-side, skips the cache and is still rate limited. The client never sends the fetch URL back.
