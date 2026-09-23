@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slop Doctor design system</title>
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* colors */
+  --color-primary:#F55200; --color-on-primary:#141414; --color-primary-container:#FFE1CC; --color-on-primary-container:#7A2600; --color-primary-deep:#C43E00;
+  --color-surface:#FDFCFA; --color-surface-container:#F4F2EE; --color-surface-container-high:#EAE7E1;
+  --color-on-surface:#141414; --color-on-surface-variant:#625D55; --color-pencil:#4A4741;
+  --color-outline:#CFCAC0; --color-outline-variant:#E6E2DA; --color-grid-line:#E6E2DA;
+  --color-inverse-surface:#141414; --color-inverse-on-surface:#FDFCFA;
+  --color-error:#B8321E; --color-on-error:#FFFFFF; --color-error-container:#F8DDD8; --color-success:#1E7A3C; --color-warning:#8A5300;
+  /* typography */
+  --font-sans:"Switzer","Helvetica Neue",Arial,sans-serif; --font-mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --type-display-lg-size:56px; --type-display-lg-weight:600; --type-display-lg-lh:1.05; --type-display-lg-ls:-0.02em;
+  --type-headline-lg-size:36px; --type-headline-lg-weight:600; --type-headline-lg-lh:1.15; --type-headline-lg-ls:-0.015em;
+  --type-headline-md-size:24px; --type-headline-md-weight:600; --type-headline-md-lh:1.25; --type-headline-md-ls:-0.01em;
+  --type-title-md-size:18px; --type-title-md-weight:600; --type-title-md-lh:1.35;
+  --type-body-lg-size:18px; --type-body-lg-weight:400; --type-body-lg-lh:1.55;
+  --type-body-md-size:16px; --type-body-md-weight:400; --type-body-md-lh:1.55;
+  --type-body-sm-size:14px; --type-body-sm-weight:400; --type-body-sm-lh:1.5;
+  --type-label-md-size:14px; --type-label-md-weight:600; --type-label-md-lh:1.4;
+  --type-label-mono-size:12px; --type-label-mono-weight:500; --type-label-mono-lh:1.4; --type-label-mono-ls:0.06em;
+  /* rounded */
+  --rounded-none:0; --rounded-sm:4px; --rounded-md:8px; --rounded-lg:12px; --rounded-full:9999px;
+  /* spacing */
+  --space-xs:4px; --space-sm:8px; --space-md:16px; --space-lg:24px; --space-xl:40px; --space-2xl:64px; --space-gutter:24px; --space-margin:48px;
+  /* patterns */
+  --shadow-menu:0 2px 8px rgba(20,20,20,.08);
+  --hatch:repeating-linear-gradient(45deg,var(--color-outline) 0,var(--color-outline) 1px,transparent 1px,transparent 6px);
+  --paper-grid:linear-gradient(var(--color-grid-line) 1px,transparent 1px),linear-gradient(90deg,var(--color-grid-line) 1px,transparent 1px);
+}
+*{box-sizing:border-box}
+html{background:var(--color-surface)}
+body{margin:0;font-family:var(--font-sans);font-size:var(--type-body-md-size);line-height:var(--type-body-md-lh);color:var(--color-on-surface);background:var(--color-surface);font-variant-numeric:tabular-nums}
+main{max-width:1280px;margin:0 auto;padding:var(--space-xl) var(--space-margin) var(--space-2xl)}
+h1{font-size:var(--type-display-lg-size);font-weight:var(--type-display-lg-weight);line-height:var(--type-display-lg-lh);letter-spacing:var(--type-display-lg-ls);margin:0 0 var(--space-md)}
+h2{font-size:var(--type-headline-lg-size);font-weight:var(--type-headline-lg-weight);line-height:var(--type-headline-lg-lh);letter-spacing:var(--type-headline-lg-ls);margin:var(--space-2xl) 0 var(--space-lg);padding-bottom:var(--space-sm);border-bottom:1px solid var(--color-outline-variant)}
+h3{font-size:var(--type-title-md-size);font-weight:var(--type-title-md-weight);line-height:var(--type-title-md-lh);margin:var(--space-xl) 0 var(--space-md)}
+p{margin:0 0 var(--space-md);max-width:720px}
+.meta,.mono{font-family:var(--font-mono);font-size:var(--type-label-mono-size);font-weight:var(--type-label-mono-weight);line-height:var(--type-label-mono-lh);letter-spacing:var(--type-label-mono-ls);text-transform:uppercase;color:var(--color-on-surface-variant)}
+header.band{background-color:var(--color-surface);background-image:var(--paper-grid);background-size:24px 24px;border:1px solid var(--color-outline-variant);border-radius:var(--rounded-md);padding:var(--space-xl);margin-bottom:var(--space-xl);position:relative;overflow:hidden}
+header.band p{color:var(--color-on-surface-variant)}
+.crew{position:absolute;right:var(--space-xl);top:var(--space-xl);display:flex;gap:var(--space-md)}
+.crew svg{width:56px;height:56px;stroke:var(--color-pencil);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.grid{display:grid;gap:var(--space-gutter)}
+.cols-4{grid-template-columns:repeat(4,1fr)} .cols-3{grid-template-columns:repeat(3,1fr)} .cols-2{grid-template-columns:repeat(2,1fr)}
+@media (max-width:900px){.cols-4,.cols-3,.cols-2{grid-template-columns:1fr 1fr}} @media (max-width:560px){.cols-4,.cols-3,.cols-2{grid-template-columns:1fr} main{padding:var(--space-lg) var(--space-md)} .crew{display:none}}
+/* swatches */
+.swatch{border:1px solid var(--color-outline-variant);border-radius:var(--rounded-md);overflow:hidden}
+.swatch .block{height:88px;display:flex;align-items:flex-end;padding:var(--space-sm) var(--space-md);font-size:var(--type-body-sm-size)}
+.swatch .info{padding:var(--space-sm) var(--space-md);display:flex;justify-content:space-between;gap:var(--space-sm);align-items:baseline}
+.swatch .info b{font-weight:600;font-size:var(--type-body-sm-size)}
+/* type specimens */
+.spec{display:grid;grid-template-columns:1fr 200px;gap:var(--space-lg);padding:var(--space-md) 0;border-bottom:1px solid var(--color-outline-variant);align-items:baseline}
+.spec .sample{overflow-wrap:anywhere}
+.t-display-lg{font-size:var(--type-display-lg-size);font-weight:var(--type-display-lg-weight);line-height:var(--type-display-lg-lh);letter-spacing:var(--type-display-lg-ls)}
+.t-headline-lg{font-size:var(--type-headline-lg-size);font-weight:var(--type-headline-lg-weight);line-height:var(--type-headline-lg-lh);letter-spacing:var(--type-headline-lg-ls)}
+.t-headline-md{font-size:var(--type-headline-md-size);font-weight:var(--type-headline-md-weight);line-height:var(--type-headline-md-lh);letter-spacing:var(--type-headline-md-ls)}
+.t-title-md{font-size:var(--type-title-md-size);font-weight:var(--type-title-md-weight);line-height:var(--type-title-md-lh)}
+.t-body-lg{font-size:var(--type-body-lg-size);font-weight:var(--type-body-lg-weight);line-height:var(--type-body-lg-lh)}
+.t-body-md{font-size:var(--type-body-md-size);font-weight:var(--type-body-md-weight);line-height:var(--type-body-md-lh)}
+.t-body-sm{font-size:var(--type-body-sm-size);font-weight:var(--type-body-sm-weight);line-height:var(--type-body-sm-lh)}
+.t-label-md{font-size:var(--type-label-md-size);font-weight:var(--type-label-md-weight);line-height:var(--type-label-md-lh)}
+.t-label-mono{font-family:var(--font-mono);font-size:var(--type-label-mono-size);font-weight:var(--type-label-mono-weight);line-height:var(--type-label-mono-lh);letter-spacing:var(--type-label-mono-ls);text-transform:uppercase}
+/* spacing + radius + elevation */
+.bar{height:20px;background:var(--color-primary);margin-bottom:var(--space-sm)}
+.spacerow{display:grid;grid-template-columns:120px 1fr;gap:var(--space-md);align-items:center;margin-bottom:var(--space-sm)}
+.radius{height:88px;background:var(--color-surface-container-high);display:flex;align-items:flex-end;padding:var(--space-sm) var(--space-md)}
+.elev{padding:var(--space-lg);border-radius:var(--rounded-md);min-height:120px}
+.elev.l1{background:var(--color-surface);border:1px dashed var(--color-outline-variant)}
+.elev.l2{background:var(--color-surface-container)}
+.elev.l3{background:var(--color-surface);border:1px solid var(--color-outline-variant)}
+.elev.l4{background:var(--color-surface);border:1px solid var(--color-outline-variant);box-shadow:var(--shadow-menu)}
+.elev.hatch{background-color:var(--color-surface);background-image:var(--hatch);border:1px solid var(--color-outline-variant)}
+.elev.paper{background-color:var(--color-surface);background-image:var(--paper-grid);background-size:24px 24px;border:1px solid var(--color-outline-variant)}
+/* components */
+.row{display:flex;gap:var(--space-md);flex-wrap:wrap;align-items:center;margin-bottom:var(--space-md)}
+.demo{background:var(--color-surface);border:1px solid var(--color-outline-variant);border-radius:var(--rounded-md);padding:var(--space-lg);margin-bottom:var(--space-lg)}
+.demo .meta{display:block;margin-bottom:var(--space-md)}
+.btn{font-family:var(--font-sans);font-size:var(--type-label-md-size);font-weight:var(--type-label-md-weight);line-height:var(--type-label-md-lh);height:44px;border-radius:var(--rounded-sm);border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center}
+.btn-primary{background:var(--color-primary);color:var(--color-on-primary);padding:12px 20px}
+.btn-primary:hover,.btn-primary.is-hover{background:var(--color-primary-deep);color:var(--color-inverse-on-surface)}
+.btn-secondary{background:var(--color-inverse-surface);color:var(--color-inverse-on-surface);padding:12px 20px}
+.btn-secondary:hover,.btn-secondary.is-hover{background:var(--color-pencil)}
+.btn-ghost{background:transparent;color:var(--color-on-surface);padding:12px 16px}
+.btn-ghost:hover,.btn-ghost.is-hover{background:var(--color-surface-container)}
+.field{display:flex;flex-direction:column;gap:var(--space-xs);max-width:360px}
+.field label{font-size:var(--type-label-md-size);font-weight:var(--type-label-md-weight);line-height:var(--type-label-md-lh)}
+.input{font-family:var(--font-sans);font-size:var(--type-body-md-size);height:44px;padding:12px 14px;border-radius:var(--rounded-sm);border:1px solid var(--color-outline-variant);background:var(--color-surface);color:var(--color-on-surface);width:100%}
+.input:focus,.input.is-focus{outline:none;border:2px solid var(--color-on-surface);padding:11px 13px}
+.input.is-error{border-color:var(--color-error)}
+.field .help{font-size:var(--type-body-sm-size);color:var(--color-on-surface-variant)} .field .help.err{color:var(--color-error)}
+.field .ph::placeholder{color:var(--color-on-surface-variant)}
+.chip{display:inline-flex;align-items:center;height:32px;padding:6px 12px;border-radius:var(--rounded-full);background:var(--color-surface-container);color:var(--color-on-surface-variant);font-size:var(--type-label-md-size);font-weight:var(--type-label-md-weight);line-height:var(--type-label-md-lh)}
+.chip.is-selected{background:var(--color-inverse-surface);color:var(--color-inverse-on-surface)}
+.card{background:var(--color-surface-container);color:var(--color-on-surface);border-radius:var(--rounded-md);padding:24px}
+.card.hl{background:var(--color-primary-container);color:var(--color-on-primary-container)}
+.panel-grid{background-color:var(--color-surface);background-image:var(--paper-grid);background-size:24px 24px;color:var(--color-on-surface);border-radius:var(--rounded-md);padding:40px;border:1px solid var(--color-outline-variant);position:relative}
+.list{border-top:1px solid var(--color-outline-variant)}
+.list-item{display:grid;grid-template-columns:1fr 160px 80px;gap:var(--space-md);padding:16px 0;border-bottom:1px solid var(--color-outline-variant);align-items:center}
+.list-item:hover,.list-item.is-hover{background:var(--color-surface-container)}
+.ladder{display:grid;grid-template-columns:repeat(8,1fr);gap:var(--space-xs)}
+.rung{height:20px;background:var(--color-surface-container-high)}
+.rung.reached{background:var(--color-primary)}
+.rung.current{background:var(--color-primary);outline:2px solid var(--color-on-surface);outline-offset:-2px}
+.rung.hatched{background-color:var(--color-surface);background-image:var(--hatch);border:1px solid var(--color-outline-variant)}
+.ladder-labels{display:grid;grid-template-columns:repeat(8,1fr);gap:var(--space-xs);margin-top:var(--space-sm)}
+.note{background:var(--color-surface);color:var(--color-on-surface);border-left:3px solid var(--color-primary);padding:12px 16px;font-size:var(--type-body-sm-size);line-height:var(--type-body-sm-lh);max-width:560px}
+.note .who{margin-bottom:var(--space-xs)}
+.toast{display:inline-flex;align-items:center;height:44px;padding:12px 16px;background:var(--color-inverse-surface);color:var(--color-inverse-on-surface);border-radius:var(--rounded-sm);font-size:var(--type-label-md-size);font-weight:var(--type-label-md-weight);box-shadow:var(--shadow-menu)}
+.banner-error{background:var(--color-error-container);color:var(--color-on-surface);border-left:3px solid var(--color-error);border-radius:var(--rounded-sm);padding:16px;max-width:560px}
+.banner-error b{display:block;font-size:var(--type-label-md-size);font-weight:var(--type-label-md-weight);margin-bottom:var(--space-xs)}
+.banner-error p{font-size:var(--type-body-sm-size);line-height:var(--type-body-sm-lh);margin:0 0 var(--space-sm)}
+.dd{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-gutter)} @media (max-width:700px){.dd{grid-template-columns:1fr}}
+.dd ul{list-style:none;padding:0;margin:0} .dd li{padding:var(--space-sm) 0;border-bottom:1px solid var(--color-outline-variant);display:flex;gap:var(--space-sm)}
+.dd .ok{color:var(--color-success);font-weight:600} .dd .no{color:var(--color-error);font-weight:600}
+.agents{display:flex;gap:var(--space-lg);align-items:flex-end;margin:var(--space-md) 0}
+.agents svg{width:72px;height:72px;stroke:var(--color-pencil);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.agents figcaption{text-align:left}
+</style>
+</head>
+<body>
+<main>
+<header class="band">
+  <div class="meta">docs/DESIGN.html · human-readable mirror of docs/DESIGN.md · version alpha · September 2026</div>
+  <h1>Slop Doctor</h1>
+  <p>A light, Swiss-grid design system. Clean paper-white surfaces, one saturated orange, Switzer for words and Geist Mono for figures, flat tonal depth, architectural corners, and a pencil-line doctor in the margins. Adopted from the Product Squad system; tokens unchanged.</p>
+  <div class="crew" aria-hidden="true">
+    <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="24"/><circle cx="24" cy="28" r="1.5" fill="#4A4741"/><circle cx="40" cy="28" r="1.5" fill="#4A4741"/><path d="M25 40h14"/></svg>
+    <svg viewBox="0 0 64 64"><path d="M32 8 56 54H8Z"/><circle cx="27" cy="38" r="1.5" fill="#4A4741"/><circle cx="37" cy="38" r="1.5" fill="#4A4741"/><path d="M27 46q5 3 10 0"/></svg>
+    <svg viewBox="0 0 64 64"><rect x="10" y="10" width="44" height="44"/><circle cx="25" cy="29" r="1.5" fill="#4A4741"/><circle cx="39" cy="29" r="1.5" fill="#4A4741"/><path d="M26 41h12"/></svg>
+    <svg viewBox="0 0 64 64"><path d="M32 6 58 32 32 58 6 32Z"/><circle cx="26" cy="30" r="1.5" fill="#4A4741"/><circle cx="38" cy="30" r="1.5" fill="#4A4741"/><path d="M27 40q5-3 10 0"/></svg>
+  </div>
+</header>
+
+<h2>Colors</h2>
+<p>Mono-accent on near-white paper. Orange is rationed to one element per screen and takes black text. Text in each block is set in its paired <span class="mono">on-</span> colour.</p>
+<div class="grid cols-4">
+  <div class="swatch"><div class="block" style="background:var(--color-primary);color:var(--color-on-primary)">on-primary, 5.3:1</div><div class="info"><b>primary</b><span class="mono">#F55200</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-on-primary);color:var(--color-primary)">primary on it, large only</div><div class="info"><b>on-primary</b><span class="mono">#141414</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-primary-container);color:var(--color-on-primary-container)">on-primary-container, 8:1</div><div class="info"><b>primary-container</b><span class="mono">#FFE1CC</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-primary-deep);color:var(--color-inverse-on-surface)">orange at body size, 4.9:1 on surface</div><div class="info"><b>primary-deep</b><span class="mono">#C43E00</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-surface);color:var(--color-on-surface);border-bottom:1px solid var(--color-outline-variant)">on-surface, 17.5:1</div><div class="info"><b>surface</b><span class="mono">#FDFCFA</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-surface-container);color:var(--color-on-surface-variant)">on-surface-variant, 5.6:1</div><div class="info"><b>surface-container</b><span class="mono">#F4F2EE</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-surface-container-high);color:var(--color-on-surface)">on-surface, 14:1</div><div class="info"><b>surface-container-high</b><span class="mono">#EAE7E1</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-on-surface);color:var(--color-inverse-on-surface)">inverse-on-surface</div><div class="info"><b>on-surface / inverse-surface</b><span class="mono">#141414</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-on-surface-variant);color:var(--color-surface)">secondary text</div><div class="info"><b>on-surface-variant</b><span class="mono">#625D55</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-pencil);color:var(--color-surface)">every hand-drawn line</div><div class="info"><b>pencil</b><span class="mono">#4A4741</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-outline);color:var(--color-on-surface)">hover borders, hatch lines</div><div class="info"><b>outline</b><span class="mono">#CFCAC0</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-outline-variant);color:var(--color-on-surface)">hairlines, grid-line</div><div class="info"><b>outline-variant / grid-line</b><span class="mono">#E6E2DA</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-error);color:var(--color-on-error)">on-error</div><div class="info"><b>error</b><span class="mono">#B8321E</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-error-container);color:var(--color-on-surface)">banner-error ground</div><div class="info"><b>error-container</b><span class="mono">#F8DDD8</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-success);color:#FFFFFF">as text on surface, 5.1:1</div><div class="info"><b>success</b><span class="mono">#1E7A3C</span></div></div>
+  <div class="swatch"><div class="block" style="background:var(--color-warning);color:#FFFFFF">as text on surface, 6:1</div><div class="info"><b>warning</b><span class="mono">#8A5300</span></div></div>
+</div>
+
+<h2>Typography</h2>
+<p>Switzer for every word, Geist Mono for every figure. Weights 400 and 600 only. Tabular numerals throughout.</p>
+<div class="spec"><div class="sample t-display-lg">Nobody has paid you yet</div><div class="meta">display-lg · Switzer 600 · 56px · 1.05 · -0.02em</div></div>
+<div class="spec"><div class="sample t-headline-lg">Rung 4 of 8: Ready to distribute</div><div class="meta">headline-lg · Switzer 600 · 36px · 1.15 · -0.015em</div></div>
+<div class="spec"><div class="sample t-headline-md">Chris left 3 notes on your Product Offer</div><div class="meta">headline-md · Switzer 600 · 24px · 1.25 · -0.01em</div></div>
+<div class="spec"><div class="sample t-title-md">Product Offer</div><div class="meta">title-md · Switzer 600 · 18px · 1.35</div></div>
+<div class="spec"><div class="sample t-body-lg">That's fine, nobody paid Linear in the first month either. Three things are queued that get you closer.</div><div class="meta">body-lg · Switzer 400 · 18px · 1.55</div></div>
+<div class="spec"><div class="sample t-body-md">The strategist would like a word first. Documents in your repo stay the source of truth; the app is a mirror with a coach in the loop.</div><div class="meta">body-md · Switzer 400 · 16px · 1.55</div></div>
+<div class="spec"><div class="sample t-body-sm">The Product Offer changed after Chris wrote them. Sync, then apply again.</div><div class="meta">body-sm · Switzer 400 · 14px · 1.5</div></div>
+<div class="spec"><div class="sample t-label-md">Sync documents</div><div class="meta">label-md · Switzer 600 · 14px · 1.4</div></div>
+<div class="spec"><div class="sample t-label-mono">v1.12 · 14 documents · 2 working days · rung 05</div><div class="meta">label-mono · Geist Mono 500 · 12px · +0.06em · uppercase</div></div>
+
+<h2>Spacing</h2>
+<p>An 8px base with a restrained ladder. 12 columns, 24px gutters, 48px margins, a 1280px frame, a 720px measure.</p>
+<div class="spacerow"><span class="mono">xs · 4px</span><div class="bar" style="width:4px"></div></div>
+<div class="spacerow"><span class="mono">sm · 8px</span><div class="bar" style="width:8px"></div></div>
+<div class="spacerow"><span class="mono">md · 16px</span><div class="bar" style="width:16px"></div></div>
+<div class="spacerow"><span class="mono">lg · 24px</span><div class="bar" style="width:24px"></div></div>
+<div class="spacerow"><span class="mono">gutter · 24px</span><div class="bar" style="width:24px;background:var(--color-pencil)"></div></div>
+<div class="spacerow"><span class="mono">xl · 40px</span><div class="bar" style="width:40px"></div></div>
+<div class="spacerow"><span class="mono">margin · 48px</span><div class="bar" style="width:48px;background:var(--color-pencil)"></div></div>
+<div class="spacerow"><span class="mono">2xl · 64px</span><div class="bar" style="width:64px"></div></div>
+
+<h2>Radius</h2>
+<p>Architectural. 4px on buttons and inputs, 8px on cards, 12px on dialogs only, square on rungs and rules, pills only for chips and avatars.</p>
+<div class="grid cols-4">
+  <div class="radius" style="border-radius:var(--rounded-none)"><span class="mono">none · 0 · rungs, rules, notes</span></div>
+  <div class="radius" style="border-radius:var(--rounded-sm)"><span class="mono">sm · 4px · buttons, inputs, toasts</span></div>
+  <div class="radius" style="border-radius:var(--rounded-md)"><span class="mono">md · 8px · cards, panels</span></div>
+  <div class="radius" style="border-radius:var(--rounded-lg)"><span class="mono">lg · 12px · dialogs only</span></div>
+</div>
+<div class="row" style="margin-top:var(--space-md)"><span class="chip">full · chips and avatars</span></div>
+
+<h2>Elevation</h2>
+<p>Flat and tonal. No glass, no gradient, no shadow for hierarchy. One soft shadow for menus and the toast, always with its hairline.</p>
+<div class="grid cols-3">
+  <div class="elev l1"><span class="mono">level 1 · surface</span><p class="t-body-sm" style="margin-top:var(--space-sm)">The page. No border, no shadow.</p></div>
+  <div class="elev l2"><span class="mono">level 2 · surface-container</span><p class="t-body-sm" style="margin-top:var(--space-sm)">Cards and tracks. Tone only.</p></div>
+  <div class="elev l3"><span class="mono">level 3 · hairline</span><p class="t-body-sm" style="margin-top:var(--space-sm)">Inputs, focused elements. 1px outline-variant.</p></div>
+  <div class="elev l4"><span class="mono">level 4 · menu shadow</span><p class="t-body-sm" style="margin-top:var(--space-sm)">Menus and toasts only. 0 2px 8px at 8%.</p></div>
+  <div class="elev hatch"><span class="mono" style="background:var(--color-surface);padding:2px 4px">hatch · "not yet"</span></div>
+  <div class="elev paper"><span class="mono" style="background:var(--color-surface);padding:2px 4px">paper grid · header, empty states, hero</span></div>
+</div>
+
+<h2>Components</h2>
+
+<div class="demo"><span class="meta">button-primary · button-secondary · button-ghost, with hover states</span>
+  <div class="row"><button class="btn btn-primary">Sync documents</button><button class="btn btn-primary is-hover">Sync documents</button><span class="mono">hover</span></div>
+  <div class="row"><button class="btn btn-secondary">Flag for review</button><button class="btn btn-secondary is-hover">Flag for review</button><span class="mono">hover</span></div>
+  <div class="row"><button class="btn btn-ghost">Skip</button><button class="btn btn-ghost is-hover">Skip</button><span class="mono">hover</span></div>
+</div>
+
+<div class="demo"><span class="meta">input-field · focus · error</span>
+  <div class="row" style="align-items:flex-start">
+    <div class="field"><label for="i1">Repo</label><input id="i1" class="input ph" placeholder="github.com/you/repo"><span class="help">Read access only. Diffs go through your agent.</span></div>
+    <div class="field"><label for="i2">Repo</label><input id="i2" class="input is-focus" value="github.com/maya/ledger"><span class="help">focus: 2px on-surface border, no glow</span></div>
+    <div class="field"><label for="i3">Repo</label><input id="i3" class="input is-error" value="ledger"><span class="help err">Enter a repo like github.com/you/repo</span></div>
+  </div>
+</div>
+
+<div class="demo"><span class="meta">chip · chip-selected</span>
+  <div class="row"><span class="chip is-selected">All</span><span class="chip">Define</span><span class="chip">Design</span><span class="chip">Develop</span><span class="chip">Distribute</span></div>
+</div>
+
+<div class="demo"><span class="meta">card · card on primary-container (one per screen) · panel-grid</span>
+  <div class="grid cols-3">
+    <div class="card"><span class="mono">Define</span><div class="t-title-md" style="margin:var(--space-sm) 0 var(--space-xs)">Product Offer</div><div class="t-body-sm" style="color:var(--color-on-surface-variant)">Filled. 3 notes waiting.</div></div>
+    <div class="card hl"><span class="mono" style="color:var(--color-on-primary-container)">Next action</span><div class="t-title-md" style="margin:var(--space-sm) 0 var(--space-xs)">Run the strategist</div><div class="t-body-sm">Customer and Pain need a second pass.</div></div>
+    <div class="panel-grid"><span class="mono">panel-grid</span><div class="t-title-md" style="margin:var(--space-sm) 0 var(--space-xs)">Nothing here until you sync</div><div class="t-body-sm" style="color:var(--color-on-surface-variant)">Connect your repo and the squad's documents appear as they're written.</div></div>
+  </div>
+</div>
+
+<div class="demo"><span class="meta">list-item, with hover</span>
+  <div class="list">
+    <div class="list-item"><span>Product Offer</span><span class="mono">flagged · 2h ago</span><span class="mono">3 notes</span></div>
+    <div class="list-item is-hover"><span>Pricing Strategy</span><span class="mono">synced · today</span><span class="mono">0 notes</span></div>
+    <div class="list-item"><span>Launch log</span><span class="mono">synced · 3d ago</span><span class="mono">1 note</span></div>
+  </div>
+</div>
+
+<div class="demo"><span class="meta">rung · rung-reached · rung (current) · rung-hatched — the ladder</span>
+  <div class="ladder">
+    <div class="rung reached"></div><div class="rung reached"></div><div class="rung reached"></div><div class="rung current"></div>
+    <div class="rung hatched"></div><div class="rung hatched"></div><div class="rung hatched"></div><div class="rung hatched"></div>
+  </div>
+  <div class="ladder-labels">
+    <span class="mono">01 Defined</span><span class="mono">02 Designed</span><span class="mono">03 Deployed</span><span class="mono">04 Ready</span>
+    <span class="mono">05 Customer</span><span class="mono">06 $1,000</span><span class="mono">07 $5,000</span><span class="mono">08 $50K</span>
+  </div>
+</div>
+
+<div class="demo"><span class="meta">note — Chris's comment, the one place orange appears as a rule</span>
+  <div class="note"><div class="who mono">Chris · Customer · 2h ago</div>"Small businesses" is a category, not a person. Name the role, the size and the tool they've already tried.</div>
+</div>
+
+<div class="demo"><span class="meta">toast · banner-error</span>
+  <div class="row"><span class="toast">Documents synced</span><span class="toast">Notes applied</span></div>
+  <div class="banner-error"><b>Couldn't sync documents</b><p>Slop Doctor lost access to your repo. Reconnect and the sync retries on its own.</p><button class="btn btn-secondary">Reconnect repo</button></div>
+</div>
+
+<div class="demo"><span class="meta">the agents — pencil-line illustrations, not a component. Circle, triangle, square, diamond.</span>
+  <div class="agents">
+    <figure style="margin:0"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="24"/><circle cx="24" cy="28" r="1.5" fill="#4A4741"/><circle cx="40" cy="28" r="1.5" fill="#4A4741"/><path d="M25 40h14"/></svg><figcaption class="mono">strategist · define</figcaption></figure>
+    <figure style="margin:0"><svg viewBox="0 0 64 64"><path d="M32 8 56 54H8Z"/><circle cx="27" cy="38" r="1.5" fill="#4A4741"/><circle cx="37" cy="38" r="1.5" fill="#4A4741"/><path d="M27 46q5 3 10 0"/></svg><figcaption class="mono">designer · design</figcaption></figure>
+    <figure style="margin:0"><svg viewBox="0 0 64 64"><rect x="10" y="10" width="44" height="44"/><circle cx="25" cy="29" r="1.5" fill="#4A4741"/><circle cx="39" cy="29" r="1.5" fill="#4A4741"/><path d="M26 41h12"/></svg><figcaption class="mono">engineer · develop</figcaption></figure>
+    <figure style="margin:0"><svg viewBox="0 0 64 64"><path d="M32 6 58 32 32 58 6 32Z"/><circle cx="26" cy="30" r="1.5" fill="#4A4741"/><circle cx="38" cy="30" r="1.5" fill="#4A4741"/><path d="M27 40q5-3 10 0"/></svg><figcaption class="mono">growth lead · distribute</figcaption></figure>
+  </div>
+  <p class="t-body-sm" style="color:var(--color-on-surface-variant)">Single pencil weight, graphite, dry expressions. One shape per agent. Never orange, never a hero.</p>
+</div>
+
+<h2>Do's and Don'ts</h2>
+<div class="dd">
+  <ul>
+    <li><span class="ok">✓</span>Ration primary to one element per screen. Reached rungs count as that element on the ladder.</li>
+    <li><span class="ok">✓</span>Set every number in Geist Mono with tabular figures.</li>
+    <li><span class="ok">✓</span>Draw structure with hairlines and spacing before reaching for a card.</li>
+    <li><span class="ok">✓</span>Keep the pencil graphite. Agents and doodles are never orange.</li>
+    <li><span class="ok">✓</span>Use the hatch for "not yet"; the paper grid only in the header band, empty states and the hero.</li>
+    <li><span class="ok">✓</span>Put black text on orange.</li>
+  </ul>
+  <ul>
+    <li><span class="no">✗</span>No dark mode, purple or cyan accent, gradient, glow or glass card.</li>
+    <li><span class="no">✗</span>No corners above 8px outside a dialog. Never round a rung.</li>
+    <li><span class="no">✗</span>No orange as body text. Use primary-deep if unavoidable.</li>
+    <li><span class="no">✗</span>No second accent and no yellow. Yellow is Skool.</li>
+    <li><span class="no">✗</span>No Inter, Instrument Serif, Outfit or Plus Jakarta Sans in place of Switzer.</li>
+    <li><span class="no">✗</span>No shadows for hierarchy; no paper grid behind body text, tables or forms.</li>
+  </ul>
+</div>
+</main>
+</body>
+</html>
