@@ -114,12 +114,28 @@ export const chart = {
   noVitalSigns: "No signs of human life detected.",
   prescriptionHeading: "Doctor's note",
   prescriptionSignature: (n: number) => `Dr. Slop · Prescription ${pad2(n)}`,
-  copyDischarge: "Copy discharge papers",
   secondOpinion: "Get a second opinion",
   examineAnother: "Examine another patient",
-  copiedToast: "Discharge papers copied. Share responsibly.",
-  copyFallback: "Copy the link above",
   cachedNote: "This patient was examined in the last 24 hours, so here's that chart.",
+};
+
+export const share = {
+  button: "Share discharge papers",
+  title: "Share your slop chart",
+  imageAlt: (host: string) => `Slop chart for ${host}`,
+  imageLoading: "Printing your chart…",
+  postOnX: "Post on X",
+  shareOnLinkedIn: "Share on LinkedIn",
+  copyLink: "Copy link",
+  linkCopied: "Link copied",
+  copyFallback: "Copy the link above",
+  downloadImage: "Download image",
+  close: "Close",
+  text: (host: string, tier: string, index: number) =>
+    `Dr. Slop diagnosed ${host} with ${tier} (Slop Index ${index}). Get your landing page examined:`,
+  siteName: "slopdoctor.app",
+  cardEyebrow: "Now seeing patients",
+  cardFallbackHeadline: "The doctor can see you now",
 };
 
 export type TierKey = "clean" | "sniffles" | "slopitis" | "chronic" | "code_purple";

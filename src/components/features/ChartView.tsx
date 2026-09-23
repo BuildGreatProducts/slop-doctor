@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { computeSlopIndex } from "../../../convex/lib/scoring";
-import { chart, type ErrorKey, type StageKey } from "@/lib/copy";
+import { chart, type ErrorKey, type StageKey, tiers } from "@/lib/copy";
 import { errorMessage } from "@/lib/errors";
 import type { Finding, PublicScan } from "@/lib/types";
 import { usePrefersReducedMotion, useRevealQueue } from "@/lib/useRevealQueue";
@@ -16,6 +16,7 @@ import { ExaminationError } from "./ExaminationError";
 import { LabResults } from "./LabResults";
 import { PencilDoctor } from "./PencilDoctor";
 import { Scanner } from "./Scanner";
+import { ShareDialog } from "./ShareDialog";
 import { SlopOMeter } from "./SlopOMeter";
 import { Toast } from "./Toast";
 import { WaitingRoom } from "./WaitingRoom";
@@ -45,7 +46,8 @@ export function ChartView({ scanId, cached }: { scanId: string; cached?: boolean
   }, [finished, instant]);
 
   const [toast, setToast] = useState<string | null>(null);
-  const [fallbackLink, setFallbackLink] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const closeShare = useCallback(() => setSharing(false), []);
   const clearToast = useCallback(() => setToast(null), []);
   const examineAnother = () => router.push("/");
 
@@ -66,15 +68,6 @@ export function ChartView({ scanId, cached }: { scanId: string; cached?: boolean
     }
   };
 
-  const copyLink = async () => {
-    const link = `${window.location.origin}/chart/${scanId}`;
-    try {
-      await navigator.clipboard.writeText(link);
-      setToast(chart.copiedToast);
-    } catch {
-      setFallbackLink(link);
-    }
-  };
 
   if (scan === undefined) {
     return (
@@ -108,13 +101,22 @@ export function ChartView({ scanId, cached }: { scanId: string; cached?: boolean
           scan={scan}
           findings={findings}
           cached={cached}
-          fallbackLink={fallbackLink}
-          onCopyLink={copyLink}
+          onShare={() => setSharing(true)}
           onSecondOpinion={secondOpinion}
           onExamineAnother={examineAnother}
         />
       ) : (
         <Examination scan={scan} revealed={revealed} finished={finished} reducedMotion={reducedMotion} />
+      )}
+      {scan.status === "complete" && scan.tier && (
+        <ShareDialog
+          open={sharing}
+          onClose={closeShare}
+          scanId={scanId}
+          host={scan.host}
+          tierName={tiers[scan.tier].name}
+          index={scan.slopIndex ?? 0}
+        />
       )}
       <Toast message={toast} onDone={clearToast} />
     </div>

@@ -8,7 +8,17 @@ import "@/styles/globals.css";
 
 const description = "The doctor can see you now. Check your landing page for AI slop.";
 
+// Absolute URLs for link previews (the share image). Production is always the www address, which is canonical;
+// previews use their own deployment URL.
+const siteUrl =
+  process.env.VERCEL_ENV === "production"
+    ? "https://www.slopdoctor.app"
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Slop Doctor",
   description,
   openGraph: { title: "Slop Doctor", description, siteName: "Slop Doctor", type: "website" },

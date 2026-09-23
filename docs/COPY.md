@@ -131,8 +131,13 @@ Rotating quips while waiting (every 4 s, in order):
 - No vital signs: No signs of human life detected.
 - Prescription heading: Doctor's note
 - Prescription signature: Dr. Slop · Prescription {nn}
-- Buttons: "Copy discharge papers", "Get a second opinion", "Examine another patient"
-- Copied toast: Discharge papers copied. Share responsibly.
+- Buttons: "Share discharge papers", "Get a second opinion", "Examine another patient"
+- Share popup title: Share your slop chart
+- Share popup buttons: "Post on X", "Share on LinkedIn", "Copy link" (reads "Link copied" for 2 seconds), "Download image", "Close"
+- Share popup image loading: Printing your chart…
+- Share popup clipboard fallback: Copy the link above
+- Share text (X): Dr. Slop diagnosed {host} with {tier} (Slop Index {n}). Get your landing page examined:
+- Share image fallback (chart missing or unfinished): eyebrow "Now seeing patients", headline "The doctor can see you now"
 - Cached note: This patient was examined in the last 24 hours, so here's that chart.
 
 ### Tier names and one-liners

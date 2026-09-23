@@ -14,15 +14,18 @@ const MOUTHS: Record<Mood, string> = {
   sad: "M13 28 Q20 21 27 28",
 };
 
-/** A pencil-line face (docs/DESIGN.md § Slop Doctor mapping). Graphite, never coloured. */
-export function MoodFace({ mood, size = 40 }: { mood: Mood; size?: number }) {
+/**
+ * A pencil-line face (docs/DESIGN.md § Slop Doctor mapping). Graphite, never coloured.
+ * `pencil` takes a plain colour where CSS variables don't work (the generated share image).
+ */
+export function MoodFace({ mood, size = 40, pencil = "var(--color-pencil)" }: { mood: Mood; size?: number; pencil?: string }) {
   return (
     <svg
       width={size}
       height={size}
       viewBox="0 0 40 40"
       fill="none"
-      stroke="var(--color-pencil)"
+      stroke={pencil}
       strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -30,8 +33,8 @@ export function MoodFace({ mood, size = 40 }: { mood: Mood; size?: number }) {
       aria-label={chart.moodLabels[mood]}
     >
       {HEADS[mood]}
-      <circle cx="14.5" cy="16" r="1.4" fill="var(--color-pencil)" stroke="none" />
-      <circle cx="25.5" cy="16" r="1.4" fill="var(--color-pencil)" stroke="none" />
+      <circle cx="14.5" cy="16" r="1.4" fill={pencil} stroke="none" />
+      <circle cx="25.5" cy="16" r="1.4" fill={pencil} stroke="none" />
       <path d={MOUTHS[mood]} />
     </svg>
   );
