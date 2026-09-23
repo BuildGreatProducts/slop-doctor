@@ -97,6 +97,7 @@ export default defineSchema({
     userId: v.id("users"),
     url: v.string(),
     normalizedUrl: v.string(),
+    displayUrl: v.optional(v.string()), // origin + path; set on every scan created after 23 Sep 2026
     host: v.string(),
     status: scanStatus,
     stageStartedAt: v.object({

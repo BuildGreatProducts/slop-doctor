@@ -4,6 +4,7 @@
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { internalMutation } from "./_generated/server";
+import { assertDevHelpersAllowed } from "./dev";
 import { computeSlopIndex, pickPrescriptions, tierFor } from "./lib/scoring";
 import { validateUrl } from "./lib/urls";
 import { determinations, findingInput, region, signals } from "./schema";
@@ -11,7 +12,10 @@ import { determinations, findingInput, region, signals } from "./schema";
 export const uploadUrl = internalMutation({
   args: {},
   returns: v.string(),
-  handler: async (ctx) => await ctx.storage.generateUploadUrl(),
+  handler: async (ctx) => {
+    assertDevHelpersAllowed();
+    return await ctx.storage.generateUploadUrl();
+  },
 });
 
 export const seed = internalMutation({
@@ -31,6 +35,7 @@ export const seed = internalMutation({
   },
   returns: v.id("scans"),
   handler: async (ctx, a) => {
+    assertDevHelpersAllowed();
     const parsed = validateUrl(a.url);
     if (!parsed.ok) throw new Error(parsed.code);
     const email = "dev@slop.doctor";
@@ -44,6 +49,7 @@ export const seed = internalMutation({
       userId,
       url: parsed.url,
       normalizedUrl: parsed.normalizedUrl,
+      displayUrl: parsed.displayUrl,
       host: parsed.host,
       status: "queued",
       stageStartedAt: { queued: now },

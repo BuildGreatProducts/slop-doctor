@@ -10,7 +10,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "seed:fixture": "tsx scripts/seed-fixture.ts"
+    "seed:fixture": "tsx scripts/seed-fixture.ts",
+    "test:e2e": "playwright test",
+    "calibrate": "tsx scripts/calibrate.ts"
   },
   "dependencies": {
     "@auth/core": "^0.41.3",

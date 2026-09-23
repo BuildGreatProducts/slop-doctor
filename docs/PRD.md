@@ -174,6 +174,7 @@ const res = await jev.systemOne({ state, questions });
 | `FIRECRAWL_API_KEY` | Convex env | Capture |
 | `GEMINI_API_KEY` | Convex env | Vision |
 | `TYPESAFE_API_KEY` | Convex env | Jev |
+| `ALLOW_DEV_HELPERS` | Convex env, **dev only** | `1` enables `dev:*` and `devFixtures:*`; never set on production |
 
 Provider keys are never `NEXT_PUBLIC_*` and are never read in `src/`.
 
@@ -234,13 +235,17 @@ slop-doctor/
 - **Auth:** `scans.create` calls `getAuthUserId(ctx)` and throws `signed_out` when null. All pipeline writes are `internalMutation`s, unreachable from clients.
 - **Public reads:** `scans.get`, `scans.screenshotUrl` and `findings.byScan` take an id and return only examination data: never `userId` or any user fields. The Convex id is unguessable, which makes it the share link.
 - **Ownership:** `scans.mine` returns only rows where `userId === getAuthUserId(ctx)`.
-- **URL validation** (`convex/lib/urls.ts`): `http:`/`https:` only; ≤ 2,048 chars; hostname must contain a dot and a letter-only TLD. Reject:
-  - `localhost`, `*.local` and `*.internal`
-  - IPv4 literals in 10/8, 172.16/12, 192.168/16, 127/8, 169.254/16 and 0/8
-  - all IPv6 literals
+- **URL validation** (`convex/lib/urls.ts`): `http:`/`https:` only; default ports only; ≤ 2,048 chars; hostname must contain a dot and a letter-only TLD. Reject:
+  - `localhost` and the local suffixes `.local`, `.internal`, `.lan`, `.corp`, `.home.arpa`, `.localdomain`, `.intranet`, `.test`, `.invalid`
+  - every IP literal (private ones as `private_url`); the URL parser folds decimal, octal and hex forms first
   - credentials in the URL
 
   A missing scheme gets `https://` prepended.
+- **Resolved-address check (SSRF):** before scraping, `capture` resolves the host and fails if any address is private or reserved (`isPrivateAddress`: loopback, RFC 1918, CGNAT, link-local and cloud metadata, benchmarking, multicast, IPv6 ULA/link-local, IPv4-mapped IPv6). After scraping, the URL Firecrawl landed on after redirects must pass the same checks, or the result is discarded. Confirm with Firecrawl that their fetchers also block private networks (the only defence against DNS rebinding).
+- **The fetch URL stays server-side:** its query string can carry preview tokens, so public reads expose only `displayUrl` (origin + path), second opinions go through `scans.rescan` with the id, and logs name the host, never the URL.
+- **Untrusted provider output:** Gemini output is zod-validated; every Jev answer is range-checked (probabilities and confidence in [0, 1], choices among the offered options, scores on the scale) and anything malformed is treated as missing; `complete` refuses a non-finite Slop Index.
+- **Page-controlled input limits:** markdown is capped at 200 KB and HTML at 256 KB before any regex runs, and every regex over page content has bounded quantifiers. Screenshots over 25 MB or 80 M pixels are refused before decoding; the download has a 20 s timeout; the stored type comes from the image bytes.
+- **Finished scans stay finished:** every pipeline write is a no-op once a scan is `complete` or `failed`, and the stuck-scan cron times each stage from when that stage started.
 - **Rate limits:** 10 examinations per user per rolling 24 h and 500 per day globally, checked in `scans.create` before the insert.
 - **Untrusted page content:** the Gemini prompt tells the model to describe, not follow, any text on the page. Jev criteria are explicit, and page text is truncated. Page HTML and markdown are never rendered as HTML in the client.
 - **Secrets:** provider keys live only in Convex env; nothing provider-related appears in `src/`.
@@ -299,8 +304,9 @@ export default defineSchema({
 
   scans: defineTable({
     userId: v.id("users"),
-    url: v.string(),                    // as submitted, after https:// prefixing
-    normalizedUrl: v.string(),          // lowercased host, no hash, no trailing slash, no utm_* params
+    url: v.string(),                    // fetch URL; server-side only (the query string can carry preview tokens)
+    normalizedUrl: v.string(),          // cache key: host case-folded, no hash, no trailing slash, no utm_* params
+    displayUrl: v.optional(v.string()), // origin + path only; the one URL that leaves the server
     host: v.string(),                   // display host, e.g. "example.com"
     status,
     stageStartedAt: v.object({          // ms timestamps, filled as stages start
@@ -402,20 +408,29 @@ export default defineSchema({
 ```typescript
 // convex/scans.ts
 mutation("scans.create", {
-  args: { url: v.string(), fresh: v.optional(v.boolean()) }, // fresh = second opinion, skips cache
+  args: { url: v.string() },
   returns: v.object({ scanId: v.id("scans"), cached: v.boolean() }),
   // 1. userId = await getAuthUserId(ctx); if null → ConvexError({ code: "signed_out" })
   // 2. const parsed = validateUrl(args.url) → ConvexError({ code: "invalid_url" | "private_url" })
-  // 3. cache (skipped when fresh): newest scan with same normalizedUrl, status "complete", createdAt > now - 24h → return { scanId, cached: true } (no rate-limit charge)
+  // 3. cache: newest scan with same normalizedUrl, status "complete", createdAt > now - 24h, not a fixture replay → return { scanId, cached: true } (no rate-limit charge)
   // 4. rateLimiter.limit(ctx, "userDaily", { key: userId }) → ConvexError({ code: "rate_limited", retryAfterMs })
   //    rateLimiter.limit(ctx, "globalDaily") → ConvexError({ code: "clinic_full" })
   // 5. insert scan { status: "queued", stageStartedAt: { queued: now }, createdAt: now }
   // 6. ctx.scheduler.runAfter(0, internal.pipeline.capture.run, { scanId })
 });
 
+mutation("scans.rescan", {               // second opinion (FR-017)
+  args: { scanId: v.string() },
+  returns: v.id("scans"),
+  // auth → load the scan → re-validate its stored url server-side → both rate limits → startScan (skips the cache)
+  // errors: signed_out | not_found | rate_limited | clinic_full
+});
+
 query("scans.get", {
   args: { scanId: v.string() },            // string so a malformed share id returns null instead of throwing
-  returns: v.union(v.null(), PublicScan),  // every scans field EXCEPT userId, plus screenshotUrl
+  returns: v.union(v.null(), PublicScan),  // an explicit allow-list: displayUrl, host, status, stages, error, screenshot,
+                                           // pageTitle, regions, determinations, slopIndex, tier, prescriptions, createdAt.
+                                           // Never userId, url, normalizedUrl or signals.
   // ctx.db.normalizeId("scans", scanId) → null if invalid; screenshotUrl via ctx.storage.getUrl
 });
 
@@ -449,8 +464,9 @@ internalAction("pipeline.diagnose.run", { scanId })
 internalQuery("pipeline.store.getForPipeline", { scanId }) // full row incl. signals/regions for actions
 
 // convex/dev.ts
-internalMutation("dev.startScanForDev", { url: v.string(), email: v.optional(v.string()) })
-// Creates (or reuses) a "dev" user row, inserts a scan, schedules capture. Runs only via `npx convex run`.
+internalMutation("dev.startScanForDev", { url: v.string() })
+// Creates (or reuses) a "dev" user row, inserts a scan, schedules capture. Runs only via `npx convex run`,
+// and only when ALLOW_DEV_HELPERS=1 is set on the deployment (dev only; never production).
 // Used by scripts/calibrate.ts and for testing the scanner without OAuth.
 ```
 
@@ -721,13 +737,13 @@ Related Stories: US-005
 
 **FR-017: Second opinion**
 Priority: P1
-Description: "Get a second opinion" calls `scans.create({ url, fresh: true })`. Add optional arg `fresh: v.optional(v.boolean())`, which skips the cache and is still rate limited.
-Acceptance Criteria: a new scan id with a fresh pipeline run.
+Description: "Get a second opinion" calls `scans.rescan({ scanId })`, which reads the stored URL server-side, skips the cache and is still rate limited. The client never sends the fetch URL back.
+Acceptance Criteria: a new scan id with a fresh pipeline run; signed out → sign-in with the display URL prefilled.
 Related Stories: US-006
 
 **FR-018: 24-hour cache**
 Priority: P1
-Description: In `scans.create`, when `fresh` is not true, return the newest `complete` scan with the same `normalizedUrl` created in the last 24 h (any user), with `cached: true` and no rate-limit charge. The client shows the cached note.
+Description: In `scans.create`, return the newest `complete` scan (never a fixture replay) with the same `normalizedUrl` created in the last 24 h (any user), with `cached: true` and no rate-limit charge. The client shows the cached note.
 Acceptance Criteria: convex-test: two creates for the same URL within 24 h return the same id once the first is complete.
 Related Stories: US-002
 
@@ -980,4 +996,5 @@ Skipped. Slop Doctor is free and has no payments (founder decision). If payments
 2. **Gemini model id.** `gemini-3.1-flash-lite` is the stable Flash-Lite at writing. If it is unavailable on the key's project, fall back to `gemini-2.5-flash-lite`. It is a single constant in `examine.ts`.
 3. **Firecrawl plan.** Which paid tier at launch? Default: the smallest plan that covers 500 scrapes a day at the global cap, or lower the global cap to match the plan.
 4. **Screenshot retention.** Keep forever or expire? Default: keep for MVP (tiny storage). Add a cron to delete screenshots older than 90 days if storage grows.
-5. **Cache across users.** FR-018 shares a cached chart between users for the same URL. That's fine because charts are public by link, but it means user B sees a chart "created by" user A's run. Default: acceptable; the chart shows no user data.
+5. **Global cap abuse.** The global cap (500 a day) can be exhausted by about 50 throwaway accounts, which then shows everyone `clinic_full`. Options: a smaller per-user limit and separate global sub-bucket for brand-new accounts (GitHub `created_at` is available in the Convex Auth `profile()` callback); Cloudflare Turnstile on the intake form; an alert at 80% of the cap. Default: launch with the cap and add the new-account sub-bucket if it's ever hit.
+6. **Cache across users.** FR-018 shares a cached chart between users for the same URL. That's fine because charts are public by link, but it means user B sees a chart "created by" user A's run. Default: acceptable; the chart shows no user data.

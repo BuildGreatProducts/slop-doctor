@@ -1,11 +1,13 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
+import { ConvexError } from "convex/values";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { computeSlopIndex } from "../../../convex/lib/scoring";
-import { chart, type StageKey } from "@/lib/copy";
+import { chart, type ErrorKey, type StageKey } from "@/lib/copy";
+import { errorMessage } from "@/lib/errors";
 import type { Finding, PublicScan } from "@/lib/types";
 import { usePrefersReducedMotion, useRevealQueue } from "@/lib/useRevealQueue";
 import { Chart } from "./Chart";
@@ -47,6 +49,23 @@ export function ChartView({ scanId, cached }: { scanId: string; cached?: boolean
   const clearToast = useCallback(() => setToast(null), []);
   const examineAnother = () => router.push("/");
 
+  const { isAuthenticated } = useConvexAuth();
+  const rescan = useMutation(api.scans.rescan);
+  const secondOpinion = async () => {
+    if (!scan) return;
+    if (!isAuthenticated) {
+      router.push(`/?signin=1&url=${encodeURIComponent(scan.displayUrl)}`);
+      return;
+    }
+    try {
+      const next = await rescan({ scanId });
+      router.push(`/?chart=${next}`);
+    } catch (err) {
+      const data = err instanceof ConvexError ? (err.data as { code?: ErrorKey; retryAfterMs?: number }) : {};
+      setToast(errorMessage(data.code, data.retryAfterMs));
+    }
+  };
+
   const copyLink = async () => {
     const link = `${window.location.origin}/chart/${scanId}`;
     try {
@@ -76,7 +95,8 @@ export function ChartView({ scanId, cached }: { scanId: string; cached?: boolean
   if (scan.status === "failed") {
     return (
       <div className="frame">
-        <ExaminationError error={scan.error ?? "generic"} onPrimary={examineAnother} primaryLabel={chart.examineAnother} />
+        <ExaminationError error={scan.error ?? "generic"} onPrimary={secondOpinion} onExamineAnother={examineAnother} />
+        <Toast message={toast} onDone={clearToast} />
       </div>
     );
   }
@@ -90,6 +110,7 @@ export function ChartView({ scanId, cached }: { scanId: string; cached?: boolean
           cached={cached}
           fallbackLink={fallbackLink}
           onCopyLink={copyLink}
+          onSecondOpinion={secondOpinion}
           onExamineAnother={examineAnother}
         />
       ) : (
@@ -117,6 +138,7 @@ function Examination({
 
   return (
     <div className={styles.layout}>
+      <h1 className="visually-hidden">{chart.heading(scan.host)}</h1>
       <div className={styles.scan}>
         <Scanner scan={scan} revealed={revealed} mode="live" finished={finished} reducedMotion={reducedMotion} />
       </div>

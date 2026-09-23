@@ -92,6 +92,9 @@ export function pageState(scan: { host: string; pageTitle?: string; signals: Sig
   };
 }
 
+// Answers are untrusted input: anything malformed is treated as missing (docs/PRD.md § 2 Security).
+const isUnit = (n: unknown): n is number => typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 1;
+
 function noulFinding(
   key: string,
   kind: "symptom" | "vital",
@@ -99,7 +102,7 @@ function noulFinding(
   answer: Answer | undefined,
   regionId?: string,
 ): FindingInput | null {
-  if (!answer || answer.type !== "noul") return null;
+  if (!answer || answer.type !== "noul" || !isUnit(answer.noul)) return null;
   const band = bandFor(answer.noul);
   if (band === "absent") return null;
   return { key, kind, source: "exam", probability: answer.noul, band, weight, ...(regionId ? { regionId } : {}) };
@@ -122,14 +125,20 @@ export type Determinations = {
   copyTemperament: { score: number; confidence: number };
 };
 
-function asChoice(a: Answer | undefined): ChoiceResult {
-  if (!a || a.type !== "choice") return { choice: "", confidence: 0, probabilities: {} };
-  return { choice: a.choice, confidence: a.confidence, probabilities: { ...a.probabilities } };
+const INCONCLUSIVE_CHOICE: ChoiceResult = { choice: "", confidence: 0, probabilities: {} };
+
+function asChoice(a: Answer | undefined, spec: ChoiceSpec): ChoiceResult {
+  if (!a || a.type !== "choice" || !Object.hasOwn(spec.options, a.choice) || !isUnit(a.confidence)) return INCONCLUSIVE_CHOICE;
+  const probabilities = Object.fromEntries(
+    Object.entries(a.probabilities ?? {}).filter(([k, p]) => Object.hasOwn(spec.options, k) && isUnit(p)),
+  );
+  return { choice: a.choice, confidence: a.confidence, probabilities };
 }
 
-function asScore(a: Answer | undefined): { score: number; confidence: number } {
-  if (!a || a.type !== "score") return { score: 0, confidence: 0 };
-  return { score: a.score, confidence: a.confidence };
+function asScore(a: Answer | undefined, spec: ScoreSpec): { score: number; confidence: number } {
+  const max = spec.levels.length - 1;
+  const valid = a?.type === "score" && Number.isFinite(a.score) && a.score >= 0 && a.score <= max && isUnit(a.confidence);
+  return valid ? { score: a.score, confidence: a.confidence } : { score: 0, confidence: 0 };
 }
 
 export function interpretPageAnswers(
@@ -141,19 +150,19 @@ export function interpretPageAnswers(
     ...VITAL_SIGNS.filter((v) => v.noul).map((v) => noulFinding(v.key, "vital", 0, answers[v.key])),
   ].filter((f): f is FindingInput => f !== null);
 
-  let birthplace = asChoice(answers[BIRTHPLACE.key]);
-  const confirmed = signals.generator !== undefined && signals.generator in BIRTHPLACE.options;
+  let birthplace = asChoice(answers[BIRTHPLACE.key], BIRTHPLACE);
+  const confirmed = signals.generator !== undefined && Object.hasOwn(BIRTHPLACE.options, signals.generator);
   if (confirmed) birthplace = { ...birthplace, choice: signals.generator!, confidence: 1 };
 
   return {
     findings,
     determinations: {
-      archetype: asChoice(answers[ARCHETYPE.key]),
+      archetype: asChoice(answers[ARCHETYPE.key], ARCHETYPE),
       birthplace,
       birthplaceConfirmed: confirmed,
-      prognosis: asChoice(answers[PROGNOSIS.key]),
-      templatedness: asScore(answers[TEMPLATEDNESS.key]),
-      copyTemperament: asScore(answers[COPY_TEMPERAMENT.key]),
+      prognosis: asChoice(answers[PROGNOSIS.key], PROGNOSIS),
+      templatedness: asScore(answers[TEMPLATEDNESS.key], TEMPLATEDNESS),
+      copyTemperament: asScore(answers[COPY_TEMPERAMENT.key], COPY_TEMPERAMENT),
     },
   };
 }

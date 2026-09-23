@@ -10,8 +10,7 @@
 
 .waitingRoom { display: flex; flex-direction: column; gap: var(--space-md); }
 .stages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-sm); }
-.stage { display: grid; grid-template-columns: 24px 1fr; align-items: center; gap: var(--space-sm); }
-.stage :global(.rung) { height: 12px; }
+.stage { display: grid; grid-template-columns: var(--space-lg) 1fr; align-items: center; gap: var(--space-sm); }
 .currentRung { background: var(--color-surface); border: 2px solid var(--color-on-surface); }
 
 .meter { display: flex; flex-direction: column; gap: var(--space-sm); }

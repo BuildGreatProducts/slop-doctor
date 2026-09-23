@@ -9,5 +9,7 @@ export function Home() {
   const params = useSearchParams();
   const chartId = params.get("chart");
   if (chartId) return <ChartView key={chartId} scanId={chartId} cached={params.get("cached") === "1"} />;
-  return <Intake initialUrl={params.get("url") ?? ""} openSignIn={params.get("signin") === "1"} />;
+  const signIn = params.get("signin") === "1";
+  // Remount when "Sign in" is pressed on this page so the inline panel opens.
+  return <Intake key={signIn ? "signin" : "intake"} initialUrl={params.get("url") ?? ""} openSignIn={signIn} />;
 }

@@ -3,7 +3,7 @@ import { countWords, detectGenerator, runLabs } from "../convex/lib/labs";
 
 const words = (n: number) => Array.from({ length: n }, (_, i) => `word${i}`).join(" ");
 const keys = (r: ReturnType<typeof runLabs>) => r.findings.map((f) => f.key).sort();
-const base = { html: "", fonts: [] as string[] };
+const base = { html: "", host: "example.com", fonts: [] as string[] };
 
 describe("em dash", () => {
   test("3 em dashes in 600 words (0.5 per 100) is present", () => {
@@ -84,20 +84,36 @@ describe("fonts", () => {
 
 describe("generator fingerprints", () => {
   test.each([
-    ['<a href="https://lovable.dev">Edit with Lovable</a>', "lovable"],
-    ['<script src="https://bolt.new/x.js"></script>', "bolt"],
-    ['<meta name="generator" content="v0.app">', "v0"],
-    ['<meta name="generator" content="Framer 3f2a">', "framer"],
-    ['<img src="https://framerusercontent.com/images/a.png">', "framer"],
-    ['<meta name="generator" content="Webflow">', "webflow"],
-    ['<meta name="generator" content="WordPress 6.8">', "website_builder"],
-    ["<html><body>Hello</body></html>", undefined],
-  ])("%s → %s", (html, expected) => {
-    expect(detectGenerator(html)).toBe(expected);
+    ['<meta name="generator" content="Lovable">', "example.com", "lovable"],
+    ['<script type="module" src="https://cdn.gpteng.co/gptengineer.js"></script>', "example.com", "lovable"],
+    ["<html></html>", "my-app.lovable.app", "lovable"],
+    ["<html></html>", "calm-otter.bolt.host", "bolt"],
+    ['<meta name="generator" content="v0.app">', "example.com", "v0"],
+    ["<html></html>", "demo.v0.app", "v0"],
+    ['<meta name="generator" content="Framer 3f2a">', "example.com", "framer"],
+    ['<img src="https://framerusercontent.com/images/a.png">', "example.com", "framer"],
+    ['<meta name="generator" content="Webflow">', "example.com", "webflow"],
+    ['<link href="https://cdn.prod.website-files.com/x.css" rel="stylesheet">', "example.com", "webflow"],
+    ['<meta name="generator" content="WordPress 6.8">', "example.com", "website_builder"],
+    ["<html><body>Hello</body></html>", "example.com", undefined],
+  ])("%s on %s → %s", (html, host, expected) => {
+    expect(detectGenerator(html, host)).toBe(expected);
+  });
+
+  test("an ordinary link to a builder is not evidence", () => {
+    expect(detectGenerator('<a href="https://bolt.new">Built with Bolt</a> <a href="https://v0.dev">v0</a>', "example.com")).toBeUndefined();
   });
 
   test("first match wins", () => {
-    expect(detectGenerator('<meta name="generator" content="Framer"> lovable.app')).toBe("lovable");
+    expect(detectGenerator('<meta name="generator" content="Framer">', "x.lovable.app")).toBe("lovable");
+  });
+
+  test("pathological HTML finishes quickly", () => {
+    const html = `<meta ${'name="generator" '.repeat(50_000)}` + "<".repeat(200_000);
+    const started = performance.now();
+    detectGenerator(html, "example.com");
+    runLabs({ markdown: "[".repeat(300_000), html, host: "example.com", fonts: [] });
+    expect(performance.now() - started).toBeLessThan(1000);
   });
 });
 

@@ -36,7 +36,7 @@ export function PatientRecords() {
                   {r.status === "complete" && r.slopIndex !== undefined
                     ? intake.recordSlopIndex(r.slopIndex)
                     : r.status === "failed"
-                      ? "Failed"
+                      ? intake.recordFailed
                       : waitingRoom.stages[r.status].readout}
                 </span>
                 <span className="mono muted">{relativeTime(r.createdAt)}</span>

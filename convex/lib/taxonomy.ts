@@ -519,23 +519,24 @@ export const TREND_FONTS = [
   "Bricolage Grotesque",
 ];
 
-// Generator fingerprints, checked in order; first match wins.
-export const GENERATOR_FINGERPRINTS: { birthplace: string; patterns: RegExp[] }[] = [
-  { birthplace: "lovable", patterns: [/lovable\.dev/i, /lovable\.app/i, /edit with lovable/i] },
-  { birthplace: "bolt", patterns: [/bolt\.new/i, /bolt\.host/i] },
-  { birthplace: "v0", patterns: [/v0\.dev/i, /v0\.app/i] },
+// Generator fingerprints, checked in order; first match wins. Evidence is the page's own host, its
+// <meta name="generator"> tag, or an asset URL in src/href: never an ordinary link to a builder's site.
+// Quantifiers are bounded because the HTML is page-controlled.
+const generatorMeta = (name: string) =>
+  new RegExp(`<meta[^>]{0,200}name=["']generator["'][^>]{0,200}content=["'][^"']{0,40}${name}`, "i");
+const assetFrom = (host: string) => new RegExp(`(?:src|href)=["'][^"']{0,300}${host}`, "i");
+
+export const GENERATOR_FINGERPRINTS: { birthplace: string; hosts: RegExp[]; html: RegExp[] }[] = [
+  { birthplace: "lovable", hosts: [/\.lovable\.app$/], html: [generatorMeta("lovable"), /<script[^>]{0,300}src=["'][^"']{0,200}(?:gptengineer|lovable)/i] },
+  { birthplace: "bolt", hosts: [/\.bolt\.host$/], html: [generatorMeta("bolt")] },
+  { birthplace: "v0", hosts: [/\.v0\.app$/, /\.vusercontent\.net$/], html: [generatorMeta("v0")] },
   {
     birthplace: "framer",
-    patterns: [/<meta[^>]+name=["']generator["'][^>]+content=["']framer/i, /framerusercontent\.com/i],
+    hosts: [/\.framer\.(website|app|ai)$/],
+    html: [generatorMeta("framer"), assetFrom("framerusercontent\\.com")],
   },
-  {
-    birthplace: "webflow",
-    patterns: [/<meta[^>]+name=["']generator["'][^>]+content=["']webflow/i, /website-files\.com/i],
-  },
-  {
-    birthplace: "website_builder",
-    patterns: [/<meta[^>]+name=["']generator["'][^>]+content=["'][^"']*(wix|squarespace|wordpress)/i],
-  },
+  { birthplace: "webflow", hosts: [/\.webflow\.io$/], html: [generatorMeta("webflow"), assetFrom("website-files\\.com")] },
+  { birthplace: "website_builder", hosts: [], html: [generatorMeta("(?:wix|squarespace|wordpress)")] },
 ];
 
 // Vital signs: each present sign subtracts VITAL_SIGN_BONUS from the Slop Index.

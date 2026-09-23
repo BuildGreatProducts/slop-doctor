@@ -267,16 +267,16 @@ Prescriptions:
 
 ## Lab notes (not symptoms)
 
-**Generator fingerprint.** Confirms the birthplace; weight 0. Checked in this order, first match wins:
+**Generator fingerprint.** Confirms the birthplace; weight 0. Evidence is the page's own host, its `<meta name="generator">` tag, or an asset URL in a `src`/`href` attribute. An ordinary link to a builder's website (for example "Built with Bolt") is not evidence. Checked in this order, first match wins:
 
-| Evidence in HTML | Birthplace |
+| Evidence | Birthplace |
 |---|---|
-| `lovable.dev`, `lovable.app` or "Edit with Lovable" | `lovable` |
-| `bolt.new` or `bolt.host` | `bolt` |
-| `v0.dev` or `v0.app` | `v0` |
-| `<meta name="generator" content="Framer…">` or `framerusercontent.com` | `framer` |
-| `<meta name="generator" content="Webflow">` or `website-files.com` | `webflow` |
-| `<meta name="generator">` containing Wix, Squarespace or WordPress | `website_builder` |
+| host `*.lovable.app`; generator meta "Lovable"; a script from `gptengineer` or `lovable` | `lovable` |
+| host `*.bolt.host`; generator meta "Bolt" | `bolt` |
+| host `*.v0.app` or `*.vusercontent.net`; generator meta "v0" | `v0` |
+| host `*.framer.website`, `*.framer.app` or `*.framer.ai`; generator meta "Framer"; assets from `framerusercontent.com` | `framer` |
+| host `*.webflow.io`; generator meta "Webflow"; assets from `website-files.com` | `webflow` |
+| generator meta containing Wix, Squarespace or WordPress | `website_builder` |
 
 ## Vital signs (signs of human life)
 

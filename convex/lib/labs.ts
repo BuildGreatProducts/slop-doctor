@@ -32,6 +32,9 @@ export type LabSignals = {
 };
 
 const COPY_EXCERPT_CHARS = 4000;
+// Page-controlled input: cap it before any regex runs.
+const MAX_MARKDOWN_CHARS = 200_000;
+const MAX_HTML_CHARS = 256_000;
 
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -46,8 +49,8 @@ function phraseRegExp(phrase: string): RegExp {
 
 export function plainText(markdown: string): string {
   return markdown
-    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ") // images
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1") // links → text
+    .replace(/!\[[^\]]{0,300}\]\([^)]{0,500}\)/g, " ") // images
+    .replace(/\[([^\]]{0,300})\]\([^)]{0,500}\)/g, "$1") // links → text
     .replace(/<[^>]+>/g, " ")
     .replace(/[#*_>`|]/g, " ");
 }
@@ -63,20 +66,23 @@ function symptom(key: string): FindingInput {
   return { key, kind: "symptom", source: "lab", probability: 1, band: "present", weight: SYMPTOMS_BY_KEY[key].weight };
 }
 
-export function detectGenerator(html: string): string | undefined {
-  return GENERATOR_FINGERPRINTS.find((g) => g.patterns.some((p) => p.test(html)))?.birthplace;
+export function detectGenerator(html: string, host: string): string | undefined {
+  const head = html.slice(0, MAX_HTML_CHARS);
+  return GENERATOR_FINGERPRINTS.find((g) => g.hosts.some((h) => h.test(host)) || g.html.some((p) => p.test(head)))
+    ?.birthplace;
 }
 
-export function runLabs(input: { markdown: string; html: string; fonts: string[] }): {
+export function runLabs(input: { markdown: string; html: string; host: string; fonts: string[] }): {
   signals: LabSignals;
   findings: FindingInput[];
 } {
-  const text = plainText(input.markdown);
-  const wordCount = countWords(input.markdown);
-  const emDashCount = (input.markdown.match(/—/g) ?? []).length;
+  const markdown = input.markdown.slice(0, MAX_MARKDOWN_CHARS);
+  const text = plainText(markdown);
+  const wordCount = countWords(markdown);
+  const emDashCount = (markdown.match(/—/g) ?? []).length;
   const buzzwordHits = BUZZWORDS.filter((b) => phraseRegExp(b).test(text));
   const loremHits = LOREM_PHRASES.filter((p) => phraseRegExp(p).test(text));
-  const generator = detectGenerator(input.html);
+  const generator = detectGenerator(input.html, input.host);
 
   const findings: FindingInput[] = [];
   const emDashRate = wordCount > 0 ? (emDashCount / wordCount) * 100 : 0;
@@ -107,7 +113,7 @@ export function runLabs(input: { markdown: string; html: string; fonts: string[]
       buzzwordHits,
       loremHits,
       generator,
-      copyExcerpt: input.markdown.slice(0, COPY_EXCERPT_CHARS),
+      copyExcerpt: markdown.slice(0, COPY_EXCERPT_CHARS),
     },
     findings,
   };

@@ -7,14 +7,9 @@ import { type FormEvent, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { validateUrl } from "../../../convex/lib/urls";
 import { type ErrorKey, errors, intake } from "@/lib/copy";
+import { errorMessage } from "@/lib/errors";
 import styles from "./Intake.module.css";
 import { SignInPanel } from "./SignInPanel";
-
-function errorMessage(code: ErrorKey | undefined, retryAfterMs?: number): string {
-  if (code === "rate_limited") return errors.rate_limited.message(Math.max(1, Math.ceil((retryAfterMs ?? 0) / 3.6e6)));
-  const copy = code ? errors[code] : errors.generic;
-  return "title" in copy ? `${copy.title}. ${copy.message}` : copy.message;
-}
 
 export function UrlIntakeForm({ initialUrl, openSignIn }: { initialUrl: string; openSignIn: boolean }) {
   const router = useRouter();

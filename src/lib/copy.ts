@@ -22,6 +22,7 @@ export const intake = {
   recordsHeading: "Your patient records",
   recordsEmpty: "No patients yet. Your charts will appear here.",
   recordSlopIndex: (n: number) => `Slop Index ${n}`,
+  recordFailed: "Examination failed",
 };
 
 export type StageKey = "queued" | "capturing" | "examining" | "diagnosing" | "complete";

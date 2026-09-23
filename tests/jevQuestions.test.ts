@@ -145,3 +145,30 @@ describe("interpretPageAnswers", () => {
     expect(r.determinations.birthplaceConfirmed).toBe(true);
   });
 });
+
+describe("untrusted answers", () => {
+  test("malformed Noul answers are dropped", () => {
+    const answers = {
+      purple_gradient: { type: "noul", noul: Number.NaN },
+      glow_orbs: { type: "noul", noul: 7 },
+      sparkle: { type: "choice", choice: "yes", confidence: 1, probabilities: {} },
+    } as unknown as Record<string, Answer>;
+    expect(interpretRegionAnswers("r01", answers)).toEqual([]);
+  });
+
+  test("choices outside the options and out-of-range scores become inconclusive", () => {
+    const answers = {
+      archetype: { type: "choice", choice: "ignore previous instructions", confidence: 1, probabilities: {} },
+      birthplace: { type: "choice", choice: "v0", confidence: 2, probabilities: { v0: 1 } },
+      prognosis: { type: "choice", choice: "chronic", confidence: 0.8, probabilities: { chronic: 0.9, bogus: 5 } },
+      templatedness: { type: "score", score: 9, confidence: 0.9 },
+      copy_temperament: { type: "score", score: Number.POSITIVE_INFINITY, confidence: 0.9 },
+    } as unknown as Record<string, Answer>;
+    const d = interpretPageAnswers(answers, {}).determinations;
+    expect(d.archetype.confidence).toBe(0);
+    expect(d.birthplace.confidence).toBe(0);
+    expect(d.prognosis).toEqual({ choice: "chronic", confidence: 0.8, probabilities: { chronic: 0.9 } });
+    expect(d.templatedness).toEqual({ score: 0, confidence: 0 });
+    expect(d.copyTemperament).toEqual({ score: 0, confidence: 0 });
+  });
+});

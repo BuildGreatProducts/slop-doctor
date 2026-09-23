@@ -67,7 +67,7 @@ export const run = internalAction({
         prescriptions: pickPrescriptions(findings),
       });
     } catch (error) {
-      console.error(`diagnose failed for ${scan.url}`, error);
+      console.error(`diagnose failed for ${scan.host}: ${error instanceof Error ? error.message : String(error)}`);
       await ctx.runMutation(internal.pipeline.store.fail, { scanId, error: "diagnose_failed" });
     }
     return null;

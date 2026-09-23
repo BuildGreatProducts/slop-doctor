@@ -71,6 +71,8 @@ Rules of thumb:
 - Records heading: Your patient records
 - Records empty: No patients yet. Your charts will appear here.
 - Record row: {host} · Slop Index {n} · {relative time}
+- Record row, running: {host} · {stage readout} · {relative time}
+- Record row, failed: {host} · Examination failed · {relative time}
 
 ### Waiting room (stage readouts, mono)
 | Status | Readout | Line beneath |

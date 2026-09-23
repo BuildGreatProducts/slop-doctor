@@ -1,7 +1,8 @@
 // Internal writes for the examination pipeline. Unreachable from clients.
 
 import { v } from "convex/values";
-import { internalMutation, internalQuery } from "../_generated/server";
+import type { Doc, Id } from "../_generated/dataModel";
+import { internalMutation, internalQuery, type MutationCtx } from "../_generated/server";
 import schema, { determinations, findingInput, region, scanError, scanStatus, signals, tier } from "../schema";
 
 export const getForPipeline = internalQuery({
@@ -12,6 +13,14 @@ export const getForPipeline = internalQuery({
   ),
   handler: async (ctx, args) => await ctx.db.get(args.scanId),
 });
+
+const isTerminal = (scan: Doc<"scans">) => scan.status === "complete" || scan.status === "failed";
+
+/** The scan, or null if it's gone or already finished: a late write must never revive a failed scan. */
+async function liveScan(ctx: MutationCtx, scanId: Id<"scans">) {
+  const scan = await ctx.db.get(scanId);
+  return scan && !isTerminal(scan) ? scan : null;
+}
 
 export const findingsForScan = internalQuery({
   args: { scanId: v.id("scans") },
@@ -37,7 +46,7 @@ export const setStatus = internalMutation({
   args: { scanId: v.id("scans"), status: scanStatus },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const scan = await ctx.db.get(args.scanId);
+    const scan = await liveScan(ctx, args.scanId);
     if (!scan) return null;
     const stageStartedAt =
       args.status === "failed" || args.status === "queued"
@@ -59,6 +68,7 @@ export const setCapture = internalMutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    if (!(await liveScan(ctx, args.scanId))) return null;
     await ctx.db.patch(args.scanId, {
       screenshotId: args.screenshotId,
       screenshotWidth: args.width,
@@ -74,6 +84,7 @@ export const setRegions = internalMutation({
   args: { scanId: v.id("scans"), regions: v.array(region) },
   returns: v.null(),
   handler: async (ctx, args) => {
+    if (!(await liveScan(ctx, args.scanId))) return null;
     await ctx.db.patch(args.scanId, { regions: args.regions });
     return null;
   },
@@ -83,6 +94,7 @@ export const addFindings = internalMutation({
   args: { scanId: v.id("scans"), findings: v.array(findingInput) },
   returns: v.null(),
   handler: async (ctx, args) => {
+    if (!(await liveScan(ctx, args.scanId))) return null;
     const existing = await ctx.db
       .query("findings")
       .withIndex("by_scan_order", (q) => q.eq("scanId", args.scanId))
@@ -106,8 +118,12 @@ export const complete = internalMutation({
   },
   returns: v.null(),
   handler: async (ctx, { scanId, ...result }) => {
-    const scan = await ctx.db.get(scanId);
+    const scan = await liveScan(ctx, scanId);
     if (!scan) return null;
+    if (!Number.isFinite(result.slopIndex)) {
+      await ctx.db.patch(scanId, { status: "failed", error: "diagnose_failed" });
+      return null;
+    }
     await ctx.db.patch(scanId, {
       ...result,
       status: "complete",
@@ -121,8 +137,7 @@ export const fail = internalMutation({
   args: { scanId: v.id("scans"), error: scanError },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const scan = await ctx.db.get(args.scanId);
-    if (!scan || scan.status === "complete" || scan.status === "failed") return null;
+    if (!(await liveScan(ctx, args.scanId))) return null;
     await ctx.db.patch(args.scanId, { status: "failed", error: args.error });
     return null;
   },
@@ -130,7 +145,7 @@ export const fail = internalMutation({
 
 const STUCK_AFTER_MS = 3 * 60 * 1000;
 
-/** Marks scans that never reached a terminal status as failed (docs/PRD.md § 7 Reliability). */
+/** Fails scans that have sat in one stage for 3 minutes (docs/PRD.md § 7 Reliability). */
 export const failStuck = internalMutation({
   args: {},
   returns: v.number(),
@@ -138,11 +153,14 @@ export const failStuck = internalMutation({
     const cutoff = Date.now() - STUCK_AFTER_MS;
     let count = 0;
     for (const status of ["queued", "capturing", "examining", "diagnosing"] as const) {
-      const stuck = await ctx.db
+      // A stage can't start before the scan was created, so createdAt narrows the index scan.
+      const candidates = await ctx.db
         .query("scans")
         .withIndex("by_status_created", (q) => q.eq("status", status).lt("createdAt", cutoff))
         .take(100);
-      for (const scan of stuck) {
+      for (const scan of candidates) {
+        const stageStart = scan.stageStartedAt[status] ?? scan.createdAt;
+        if (stageStart >= cutoff) continue;
         await ctx.db.patch(scan._id, { status: "failed", error: "generic" });
         count++;
       }

@@ -96,7 +96,7 @@ export const run = internalAction({
 
       await ctx.runMutation(internal.pipeline.store.setRegions, { scanId, regions: normalizeRegions(output.regions) });
     } catch (error) {
-      console.error(`examine failed for ${scan.url}`, error);
+      console.error(`examine failed for ${scan.host}: ${error instanceof Error ? error.message : String(error)}`);
       await ctx.runMutation(internal.pipeline.store.fail, { scanId, error: "examine_failed" });
       return null;
     }

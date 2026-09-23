@@ -1,0 +1,11 @@
+{
+  "_comment": "Calibration fixtures (docs/PRD.md § 7 Reliability, § 14 Q1). 3 slop pages must score >= 56, 3 designed pages <= 35. Replace the TODO entries before running pnpm calibrate.",
+  "fixtures": [
+    { "url": "TODO: a fresh v0 template deployment", "expect": "slop" },
+    { "url": "TODO: a fresh Lovable template deployment", "expect": "slop" },
+    { "url": "TODO: a Framer AI template site", "expect": "slop" },
+    { "url": "https://stripe.com", "expect": "designed" },
+    { "url": "https://linear.app", "expect": "designed" },
+    { "url": "TODO: a hand-designed personal or studio site", "expect": "designed" }
+  ]
+}

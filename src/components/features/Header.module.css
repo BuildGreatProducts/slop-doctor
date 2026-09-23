@@ -1,4 +1,4 @@
 .header { border-bottom: 1px solid var(--color-outline-variant); }
-.inner { display: flex; align-items: center; justify-content: space-between; min-height: 64px; }
+.inner { display: flex; align-items: center; justify-content: space-between; min-height: var(--space-2xl); }
 /* Weight 700 is reserved for the wordmark (docs/DESIGN.md § Typography). */
 .wordmark { font-size: var(--type-title-md-size); line-height: var(--type-title-md-lh); font-weight: 700; text-decoration: none; }

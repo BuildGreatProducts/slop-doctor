@@ -134,11 +134,152 @@ describe("pipeline store", () => {
     expect((await t.run((ctx) => ctx.db.get(fresh)))?.status).toBe("queued");
   });
 
+  test("dev helpers refuse to run unless ALLOW_DEV_HELPERS is set", async () => {
+    const t = makeTest();
+    const before = process.env.ALLOW_DEV_HELPERS;
+    delete process.env.ALLOW_DEV_HELPERS;
+    await expect(t.mutation(internal.dev.startScanForDev, { url: "example.com" })).rejects.toThrow(/disabled/);
+    if (before === undefined) delete process.env.ALLOW_DEV_HELPERS;
+    else process.env.ALLOW_DEV_HELPERS = before;
+  });
+
   test("dev.startScanForDev creates a dev user once", async () => {
     const t = makeTest();
+    process.env.ALLOW_DEV_HELPERS = "1";
     await t.mutation(internal.dev.startScanForDev, { url: "example.com" });
     await t.mutation(internal.dev.startScanForDev, { url: "example.org" });
     const users = await t.run((ctx) => ctx.db.query("users").collect());
     expect(users.map((u) => u.email)).toEqual(["dev@slop.doctor"]);
+  });
+});
+
+describe("second opinions and the 24-hour cache", () => {
+  async function completeScan(t: ReturnType<typeof makeTest>, scanId: Id<"scans">) {
+    await t.run((ctx) => ctx.db.patch(scanId, { status: "complete", slopIndex: 40, tier: "slopitis" }));
+  }
+
+  test("a completed scan of the same URL within 24 hours is returned without charging the limit", async () => {
+    const t = makeTest();
+    const { as } = await withUser(t);
+    const first = await as.mutation(api.scans.create, { url: "example.com" });
+    await completeScan(t, first.scanId);
+    for (let i = 0; i < 9; i++) await as.mutation(api.scans.create, { url: `other${i}.com` });
+    // 10 charged so far; a cache hit must not need an 11th token.
+    const again = await as.mutation(api.scans.create, { url: "https://example.com/?utm_source=x" });
+    expect(again).toEqual({ scanId: first.scanId, cached: true });
+  });
+
+  test("the cache is shared across users", async () => {
+    const t = makeTest();
+    const a = await withUser(t, "a@x.dev");
+    const b = await withUser(t, "b@x.dev");
+    const first = await a.as.mutation(api.scans.create, { url: "example.com" });
+    await completeScan(t, first.scanId);
+    expect(await b.as.mutation(api.scans.create, { url: "example.com" })).toEqual({ scanId: first.scanId, cached: true });
+  });
+
+  test("running or failed scans are not cached", async () => {
+    const t = makeTest();
+    const { as } = await withUser(t);
+    const first = await as.mutation(api.scans.create, { url: "example.com" });
+    const second = await as.mutation(api.scans.create, { url: "example.com" });
+    expect(second.cached).toBe(false);
+    expect(second.scanId).not.toBe(first.scanId);
+  });
+
+  test("scans older than 24 hours are not cached", async () => {
+    const t = makeTest();
+    const { as } = await withUser(t);
+    const first = await as.mutation(api.scans.create, { url: "example.com" });
+    await completeScan(t, first.scanId);
+    await t.run((ctx) => ctx.db.patch(first.scanId, { createdAt: Date.now() - 25 * 60 * 60 * 1000 }));
+    expect((await as.mutation(api.scans.create, { url: "example.com" })).cached).toBe(false);
+  });
+
+  test("fixture replays are never served from the cache", async () => {
+    const t = makeTest();
+    const { as } = await withUser(t);
+    const first = await as.mutation(api.scans.create, { url: "example.com" });
+    await t.run((ctx) => ctx.db.patch(first.scanId, { status: "complete", jevModel: "fixture" }));
+    expect((await as.mutation(api.scans.create, { url: "example.com" })).cached).toBe(false);
+  });
+});
+
+describe("scans.rescan", () => {
+  test("re-examines the stored URL, skipping the cache", async () => {
+    const t = makeTest();
+    const { as } = await withUser(t);
+    const first = await as.mutation(api.scans.create, { url: "https://example.com/?token=secret" });
+    await t.run((ctx) => ctx.db.patch(first.scanId, { status: "complete" }));
+    const next = await as.mutation(api.scans.rescan, { scanId: first.scanId });
+    expect(next).not.toBe(first.scanId);
+    expect((await t.run((ctx) => ctx.db.get(next)))?.url).toBe("https://example.com?token=secret");
+  });
+
+  test("is rate limited and needs sign-in", async () => {
+    const t = makeTest();
+    const { as } = await withUser(t);
+    const first = await as.mutation(api.scans.create, { url: "example.com" });
+    for (let i = 0; i < 9; i++) await as.mutation(api.scans.rescan, { scanId: first.scanId });
+    expect((await errorCode(as.mutation(api.scans.rescan, { scanId: first.scanId }))).code).toBe("rate_limited");
+    expect((await errorCode(t.mutation(api.scans.rescan, { scanId: first.scanId }))).code).toBe("signed_out");
+    expect((await errorCode(as.mutation(api.scans.rescan, { scanId: "nope" }))).code).toBe("not_found");
+  });
+});
+
+describe("hardening", () => {
+  test("public reads never include the fetch URL or its query string", async () => {
+    const t = makeTest();
+    const { as } = await withUser(t);
+    const { scanId } = await as.mutation(api.scans.create, { url: "https://preview.example.com/p?_vercel_share=tok" });
+    const scan = await t.query(api.scans.get, { scanId });
+    expect(JSON.stringify(scan)).not.toContain("tok");
+    expect(scan).not.toHaveProperty("url");
+    expect(scan).not.toHaveProperty("normalizedUrl");
+    expect(scan).not.toHaveProperty("signals");
+    expect(scan?.displayUrl).toBe("https://preview.example.com/p");
+  });
+
+  test("late pipeline writes don't revive a failed scan", async () => {
+    const t = makeTest();
+    const { as } = await withUser(t);
+    const { scanId } = await as.mutation(api.scans.create, { url: "example.com" });
+    await t.mutation(internal.pipeline.store.fail, { scanId, error: "generic" });
+    await t.mutation(internal.pipeline.store.setStatus, { scanId, status: "examining" });
+    await t.mutation(internal.pipeline.store.addFindings, {
+      scanId,
+      findings: [{ key: "a", kind: "symptom", source: "lab", probability: 1, band: "present", weight: 1 }],
+    });
+    expect((await t.run((ctx) => ctx.db.get(scanId)))?.status).toBe("failed");
+    expect(await t.query(api.findings.byScan, { scanId })).toEqual([]);
+  });
+
+  test("failStuck times each stage from when it started", async () => {
+    const t = makeTest();
+    const { as } = await withUser(t);
+    const { scanId } = await as.mutation(api.scans.create, { url: "example.com" });
+    const old = Date.now() - 5 * 60 * 1000;
+    // Created 5 minutes ago but only entered this stage just now: still healthy.
+    await t.run((ctx) =>
+      ctx.db.patch(scanId, { createdAt: old, status: "diagnosing", stageStartedAt: { queued: old, diagnosing: Date.now() } }),
+    );
+    expect(await t.mutation(internal.pipeline.store.failStuck, {})).toBe(0);
+  });
+
+  test("a non-finite Slop Index fails the scan instead of completing it", async () => {
+    const t = makeTest();
+    const { as } = await withUser(t);
+    const { scanId } = await as.mutation(api.scans.create, { url: "example.com" });
+    const choice = { choice: "x", confidence: 1, probabilities: {} };
+    const score = { score: 0, confidence: 1 };
+    await t.mutation(internal.pipeline.store.complete, {
+      scanId,
+      jevModel: "jev",
+      determinations: { archetype: choice, birthplace: choice, birthplaceConfirmed: false, prognosis: choice, templatedness: score, copyTemperament: score },
+      slopIndex: Number.NaN,
+      tier: "clean",
+      prescriptions: [],
+    });
+    expect(await t.run((ctx) => ctx.db.get(scanId))).toMatchObject({ status: "failed", error: "diagnose_failed" });
   });
 });

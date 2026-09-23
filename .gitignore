@@ -42,3 +42,7 @@ next-env.d.ts
 
 # ProductOS (local system files)
 productos/
+
+# playwright
+/test-results/
+/playwright-report/

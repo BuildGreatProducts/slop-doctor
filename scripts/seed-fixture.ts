@@ -86,7 +86,7 @@ async function main() {
   ).map(([key, p]) => ({ key, kind: "symptom" as const, source: "exam" as const, probability: p, band: band(p), weight: WEIGHTS[key] }));
 
   const fonts = ["Inter", "Instrument Serif"];
-  const labs = runLabs({ markdown, html, fonts });
+  const labs = runLabs({ markdown, html, host: "synergize.example.com", fonts });
 
   const scanId: string = convexRun("devFixtures:seed", {
     url: "https://synergize.example.com",
