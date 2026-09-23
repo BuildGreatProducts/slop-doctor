@@ -45,7 +45,7 @@ export const waitingRoom = {
     queued: { readout: "Checking in patient", line: "Please take a seat." },
     capturing: { readout: "Taking X-rays", line: "Please remain still while we photograph your hero section." },
     examining: { readout: "Examining", line: "The doctor is looking at every section. Try not to blush." },
-    diagnosing: { readout: "Running labs", line: "Dr. Jev is reviewing the results." },
+    diagnosing: { readout: "Running labs", line: "Dr. Slop is reviewing the results." },
     complete: { readout: "Writing up chart", line: "Your chart is ready." },
   } satisfies Record<StageKey, { readout: string; line: string }>,
   stageOrder: ["queued", "capturing", "examining", "diagnosing", "complete"] as StageKey[],
@@ -93,7 +93,10 @@ export const scanner = {
 };
 
 export const chart = {
-  heading: (host: string) => `Chart for ${host}`,
+  heading: (host: string) => `Slop chart for ${host}`,
+  verdictHealthy: "Healthy",
+  verdictUnwell: "Needs treatment",
+  moodLabels: { happy: "Good sign", meh: "Could be worse", sad: "Bad sign" },
   indexLabel: "Slop Index",
   diagnosisLine: (tier: string) => `Diagnosis: ${tier}`,
   archetypeLabel: "Presents as",
@@ -110,7 +113,7 @@ export const chart = {
   vitalSignsHeading: "Vital signs",
   noVitalSigns: "No signs of human life detected.",
   prescriptionHeading: "Doctor's note",
-  prescriptionSignature: (n: number) => `Dr. Jev · Prescription ${pad2(n)}`,
+  prescriptionSignature: (n: number) => `Dr. Slop · Prescription ${pad2(n)}`,
   copyDischarge: "Copy discharge papers",
   secondOpinion: "Get a second opinion",
   examineAnother: "Examine another patient",
@@ -213,7 +216,7 @@ export const errors = {
   },
   diagnose_failed: {
     title: "The lab didn't return results",
-    message: "Dr. Jev may be busy. Try again in a minute.",
+    message: "Dr. Slop may be busy. Try again in a minute.",
     action: "Get a second opinion",
   },
   not_found: {

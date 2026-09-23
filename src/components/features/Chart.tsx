@@ -2,14 +2,16 @@
 
 import { SYMPTOMS_BY_KEY, type SymptomGroup, type TierKey } from "../../../convex/lib/taxonomy";
 import { chart, regionKindLabels, scanner, tiers } from "@/lib/copy";
-import { type Determination, describeDeterminations } from "@/lib/determinations";
+import { type Determination, describeDeterminations, isHealthy } from "@/lib/determinations";
 import { barTone, findingName } from "@/lib/findings";
 import type { Finding, PublicScan } from "@/lib/types";
 import styles from "./Chart.module.css";
 import { DoctorsNote } from "./DoctorsNote";
+import { MoodFace } from "./MoodFace";
 import { Scanner } from "./Scanner";
 import { SlopOMeter } from "./SlopOMeter";
 import { SymptomBar } from "./SymptomBar";
+import { VerdictMark } from "./VerdictMark";
 
 type Props = {
   scan: PublicScan;
@@ -90,12 +92,15 @@ function SymptomRow({ row }: { row: Row }) {
 
 function DeterminationCard({ label, value }: { label: string; value: Determination }) {
   return (
-    <div className="card">
-      <span className="mono muted">{label}</span>
-      <p className="t-title-md">{value.name}</p>
-      <p className="t-body-sm">{value.line}</p>
-      {value.meta && <span className="mono muted">{value.meta}</span>}
-      {value.note && <span className="t-body-sm muted">{value.note}</span>}
+    <div className={`card ${styles.determination}`}>
+      <div className={styles.determinationText}>
+        <span className="mono muted">{label}</span>
+        <p className="t-title-md">{value.name}</p>
+        <p className="t-body-sm">{value.line}</p>
+        {value.meta && <span className="mono muted">{value.meta}</span>}
+        {value.note && <span className="t-body-sm muted">{value.note}</span>}
+      </div>
+      <MoodFace mood={value.mood} />
     </div>
   );
 }
@@ -115,7 +120,10 @@ export function Chart({ scan, findings, cached, fallbackLink, onCopyLink, onSeco
       <header className={`panel-grid ${styles.band}`}>
         <div className={styles.bandText}>
           <h1 className="t-headline-lg">{chart.heading(scan.host)}</h1>
-          <p className="t-title-md">{chart.diagnosisLine(tiers[tier].name)}</p>
+          <p className={`t-title-md ${styles.diagnosis}`}>
+            {chart.diagnosisLine(tiers[tier].name)}
+            <VerdictMark healthy={isHealthy(tier)} />
+          </p>
           <p className="t-body-md muted">{tiers[tier].oneLiner}</p>
         </div>
         <div className={styles.index}>

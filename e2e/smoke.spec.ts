@@ -25,7 +25,7 @@ test("a completed chart renders for a signed-out visitor", async ({ page }) => {
   const id = process.env.E2E_CHART_ID;
   test.skip(!id, "Set E2E_CHART_ID to a completed scan (pnpm seed:fixture prints one)");
   await page.goto(`/chart/${id}`);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Chart for");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Slop chart for");
   await expect(page.getByText("Slop Index", { exact: true })).toBeVisible();
   await expect(page.locator(".region-box").first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Copy discharge papers" })).toBeVisible();

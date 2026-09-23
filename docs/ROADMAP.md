@@ -362,7 +362,7 @@ Tasks marked **USER** need the founder to create an account, an OAuth app or an 
 
 - [x] **TASK-047** — Expandable symptom rows, score-coloured Slop Index, no certainty on the cards
   Files: `convex/lib/taxonomy.ts`, `docs/SLOP-TAXONOMY.md`, `src/components/features/Chart.tsx`, `src/components/features/Chart.module.css`, `src/components/features/SlopOMeter.tsx`, `src/lib/determinations.ts`, `src/lib/copy.ts`, `src/styles/components.css`
-  Notes: Founder feedback after the first live examinations (23 Sep 2026). Each chart symptom is a native `<details>` accordion with a one-sentence description (new `about` field in the taxonomy) and where it was found, with per-section scores. The high band of the symptom bars uses `primary`; the Slop Index figure and meter take the same green, amber or red tone. Determination cards drop certainty. Verify: `pnpm test`; expand a row on a fixture chart.
+  Notes: Founder feedback after the first live examinations (23 Sep 2026). Each chart symptom is a native `<details>` accordion with a one-sentence description (new `about` field in the taxonomy) and where it was found, with per-section scores. The high band of the symptom bars uses `primary`; the Slop Index figure and meter take the same green, amber or red tone. Determination cards drop certainty and gain a happy, meh or sad pencil face; the diagnosis line gains a tick or cross; the chart heading is "Slop chart for {host}"; the doctor is Dr. Slop everywhere. Verify: `pnpm test`; expand a row on a fixture chart.
 
 - [ ] **TASK-044** — **USER** + agent: production deploy
   Files: `docs/DEPLOY.md`

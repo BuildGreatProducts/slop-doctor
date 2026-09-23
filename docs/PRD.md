@@ -716,7 +716,7 @@ Related Stories: US-003
 **FR-015: Chart**
 Priority: P0
 Description: `Chart` shows:
-- the header "Chart for {host}", the Slop Index in `display-lg` Geist Mono coloured by score (green under 20, amber to 70, red above), the diagnosis name and one-liner, and the Slop-o-meter in the same colour
+- the header "Slop chart for {host}", the Slop Index in `display-lg` Geist Mono coloured by score (green under 20, amber to 70, red above), the diagnosis name and one-liner, and the Slop-o-meter in the same colour
 - a determinations row (cards):
   - "Presents as" (archetype)
   - "Suspected place of birth" (birthplace, plus "Confirmed by lab" when fingerprinted)
@@ -835,7 +835,7 @@ Components Used: panel-grid (frame), scan-rule, scan-readout, region-box, region
 Route: `/` (complete) and `/chart/[id]`
 Purpose: The verdict and the shareable artefact.
 Layout:
-- top: a `panel-grid` band with "Chart for {host}", the Slop Index figure, diagnosis and meter
+- top: a `panel-grid` band with "Slop chart for {host}", the Slop Index figure, diagnosis with its tick or cross, and meter
 - below: two columns on desktop (static `Scanner` 7 cols; determinations, symptoms, vital signs, `DoctorsNote` and actions 5 cols); stacked on mobile
 
 States:

@@ -15,7 +15,9 @@
 .details { display: flex; flex-direction: column; gap: var(--space-xl); min-width: 0; }
 
 .cards { display: grid; gap: var(--space-md); }
-.cards :global(.card) { display: flex; flex-direction: column; gap: var(--space-xs); }
+.determination { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-md); align-items: center; }
+.determinationText { display: flex; flex-direction: column; gap: var(--space-xs); min-width: 0; }
+.diagnosis { display: inline-flex; align-items: center; gap: var(--space-sm); }
 
 /* Symptom accordion: native <details>, one per row. Specs: docs/DESIGN.md § Slop Doctor mapping. */
 .item { border-bottom: 1px solid var(--color-outline-variant); }
