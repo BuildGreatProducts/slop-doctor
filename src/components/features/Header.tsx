@@ -5,6 +5,7 @@ import { useConvexAuth } from "convex/react";
 import Link from "next/link";
 import { header } from "@/lib/copy";
 import styles from "./Header.module.css";
+import { LogoMark } from "./LogoMark";
 
 export function Header() {
   const { isAuthenticated, isLoading } = useConvexAuth();
@@ -14,6 +15,7 @@ export function Header() {
     <header className={styles.header}>
       <div className={`frame ${styles.inner}`}>
         <Link href="/" className={styles.wordmark}>
+          <LogoMark />
           {header.wordmark}
         </Link>
         {isLoading ? null : isAuthenticated ? (

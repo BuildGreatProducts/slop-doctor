@@ -1,4 +1,4 @@
 .header { border-bottom: 1px solid var(--color-outline-variant); }
 .inner { display: flex; align-items: center; justify-content: space-between; min-height: var(--space-2xl); }
-/* Weight 700 is reserved for the wordmark (docs/DESIGN.md § Typography). */
-.wordmark { font-size: var(--type-title-md-size); line-height: var(--type-title-md-lh); font-weight: 700; text-decoration: none; }
+/* The wordmark is set in Geist Mono beside the square doctor mark (docs/DESIGN.md § Slop Doctor mapping). */
+.wordmark { display: inline-flex; align-items: center; gap: var(--space-sm); font-family: var(--font-mono); font-size: var(--type-title-md-size); line-height: var(--type-title-md-lh); font-weight: 600; text-decoration: none; }

@@ -1,5 +1,5 @@
 // What the chart's three determination cards say (docs/COPY.md § Chart). Every card always says something:
-// Jev's answer with a fun line, flagged as a hunch when it's unsure, or a fallback when there's no usable answer.
+// Jev's top answer with a fun line, or a fallback when there's no usable answer. Certainty isn't shown.
 
 import {
   ARCHETYPE_NAMES,
@@ -19,11 +19,42 @@ import {
 } from "./copy";
 import type { PublicScan } from "./types";
 
-export type Determination = { name: string; line: string; meta?: string; note?: string };
+export type Mood = "happy" | "meh" | "sad";
 
-const pct = (confidence: number) => Math.round(confidence * 100);
-const sureness = (confidence: number) =>
-  confidence >= CONFIDENCE_MIN ? chart.certainty(pct(confidence)) : chart.hunch(pct(confidence));
+export type Determination = { name: string; line: string; mood: Mood; meta?: string; note?: string };
+
+// Whether each answer is good news for the patient. Anything unknown is "meh".
+const ARCHETYPE_MOOD: Record<string, Mood> = {
+  actually_designed: "happy",
+  linear_lookalike: "meh",
+  stripe_tribute: "meh",
+  notion_wannabe: "meh",
+  saas_clone: "sad",
+  demo_day: "sad",
+  crypto_fever: "sad",
+  template_special: "sad",
+};
+const BIRTHPLACE_MOOD: Record<string, Mood> = {
+  human_designer: "happy",
+  framer: "meh",
+  webflow: "meh",
+  website_builder: "meh",
+  v0: "sad",
+  lovable: "sad",
+  bolt: "sad",
+  tailwind_starter: "sad",
+};
+const PROGNOSIS_MOOD: Record<string, Mood> = {
+  full_recovery: "happy",
+  manageable: "meh",
+  chronic: "sad",
+  terminal: "sad",
+};
+
+/** The diagnosis line's tick or cross: a clean bill of health or the sniffles is healthy; anything worse needs treatment. */
+export function isHealthy(tier: TierKey): boolean {
+  return tier === "clean" || tier === "sniffles";
+}
 
 // The prognosis a tier implies, for when Jev's answer is missing.
 const PROGNOSIS_FOR_TIER = Object.fromEntries(
@@ -36,18 +67,19 @@ export function describeDeterminations(d: PublicScan["determinations"], tier: Ti
       ? {
           name: ARCHETYPE_NAMES[d.archetype.choice],
           line: archetypeLines[d.archetype.choice],
-          meta: sureness(d.archetype.confidence),
+          mood: ARCHETYPE_MOOD[d.archetype.choice] ?? "meh",
         }
-      : unknownArchetype;
+      : { ...unknownArchetype, mood: "meh" };
 
   const birthplace: Determination =
     d && Object.hasOwn(birthplaceLabels, d.birthplace.choice)
       ? {
           name: birthplaceLabels[d.birthplace.choice],
           line: birthplaceLines[d.birthplace.choice],
-          meta: d.birthplaceConfirmed ? chart.birthplaceConfirmed : sureness(d.birthplace.confidence),
+          mood: BIRTHPLACE_MOOD[d.birthplace.choice] ?? "meh",
+          meta: d.birthplaceConfirmed ? chart.birthplaceConfirmed : undefined,
         }
-      : unknownBirthplace;
+      : { ...unknownBirthplace, mood: "meh" };
 
   let prognosis: Determination;
   if (d && Object.hasOwn(PROGNOSIS_NAMES, d.prognosis.choice)) {
@@ -55,12 +87,12 @@ export function describeDeterminations(d: PublicScan["determinations"], tier: Ti
     prognosis = {
       name: PROGNOSIS_NAMES[d.prognosis.choice],
       line: prognosisLines[d.prognosis.choice],
-      meta: sureness(d.prognosis.confidence),
+      mood: PROGNOSIS_MOOD[d.prognosis.choice] ?? "meh",
       note: disagrees ? chart.disagreement : undefined,
     };
   } else {
     const fromTier = PROGNOSIS_FOR_TIER[tier];
-    prognosis = { name: PROGNOSIS_NAMES[fromTier], line: prognosisLines[fromTier], meta: chart.fromLab };
+    prognosis = { name: PROGNOSIS_NAMES[fromTier], line: prognosisLines[fromTier], mood: PROGNOSIS_MOOD[fromTier] ?? "meh" };
   }
   return { archetype, birthplace, prognosis };
 }

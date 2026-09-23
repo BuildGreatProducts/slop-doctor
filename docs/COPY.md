@@ -38,7 +38,7 @@ Rules of thumb:
 | discharge papers | the share link | share URL, permalink |
 | patient records | the signed-in user's past charts | history, past scans |
 | the doctor | the product speaking | we, Slop Doctor AI, the AI |
-| Dr. Jev | the model, in signatures only | the algorithm |
+| Dr. Slop | the doctor by name: signatures, the waiting room and errors | Dr. Jev, the algorithm, the model |
 
 ## Mechanics
 
@@ -89,7 +89,7 @@ Rules of thumb:
 | queued | Checking in patient | Please take a seat. |
 | capturing | Taking X-rays | Please remain still while we photograph your hero section. |
 | examining | Examining | The doctor is looking at every section. Try not to blush. |
-| diagnosing | Running labs | Dr. Jev is reviewing the results. |
+| diagnosing | Running labs | Dr. Slop is reviewing the results. |
 | complete | Writing up chart | Your chart is ready. |
 
 Rotating quips while waiting (every 4 s, in order):
@@ -110,24 +110,27 @@ Rotating quips while waiting (every 4 s, in order):
 - Meter label: Slop Index {n}/100
 
 ### Chart
-- Heading: Chart for {host}
+- Heading: Slop chart for {host}
 - Index label: Slop Index
-- Diagnosis line: Diagnosis: {tier name}
+- Diagnosis line: Diagnosis: {tier name}, followed by a tick (accessible name "Healthy") for a clean bill of health or the sniffles, or a cross ("Needs treatment") for anything worse
 - Archetype label: Presents as
 - Birthplace label: Suspected place of birth
 - Birthplace confirmed tag: Confirmed by lab
-- Certainty (50% or more): Doctor's certainty {nn}%
-- Certainty (under 50%): A hunch · {nn}% sure
-- Prognosis with no usable answer (taken from the tier): Based on the lab results
 - Prognosis label: Prognosis
-- Every determination card always shows a name, a one-liner and one of the lines above. Never "Inconclusive".
+- Each determination card shows a face on the right: a square happy face (accessible name "Good sign"), a round meh face ("Could be worse") or a hexagonal sad face ("Bad sign"). Happy: The Actually Designed, A human designer, Full recovery. Meh: The Linear Lookalike, The Stripe Tribute Act, The Notion Wannabe, Framer, Webflow template, Website builder theme, Manageable with treatment, and any unknown answer. Sad: everything else.
+- Every determination card always shows a name and a one-liner. Certainty is not shown. Never "Inconclusive". A missing prognosis is taken from the tier.
 - Disagreement note: The doctor and the lab disagree.
 - Symptom groups: "Visual symptoms", "Copy symptoms", "Lab results"
+- Symptom rows expand to show the symptom's one-sentence description (`docs/SLOP-TAXONOMY.md` § Descriptions) and where it was found:
+  - Found in {Section} {pct}% · {Section} {pct}% (sections where it scored 35% or more, highest first)
+  - Not found in any section.
+  - Checked across the whole page. (page-level symptoms)
+  - Checked in the page's code and copy. (lab tests)
 - No symptoms: No symptoms found. The doctor is suspicious but impressed.
 - Vital signs heading: Vital signs
 - No vital signs: No signs of human life detected.
 - Prescription heading: Doctor's note
-- Prescription signature: Dr. Jev · Prescription {nn}
+- Prescription signature: Dr. Slop · Prescription {nn}
 - Buttons: "Copy discharge papers", "Get a second opinion", "Examine another patient"
 - Copied toast: Discharge papers copied. Share responsibly.
 - Cached note: This patient was examined in the last 24 hours, so here's that chart.
@@ -189,7 +192,7 @@ Each says what happened, why, and what to do next.
 | `signed_out` | Sign in to start an examination. It keeps the clinic open. | Sign in |
 | `capture_failed` | We couldn't photograph this patient. The site blocked us or took too long to load. Check the URL and try again. | Get a second opinion |
 | `examine_failed` | The examination stopped partway. Our vision specialist didn't respond. Try again in a minute. | Get a second opinion |
-| `diagnose_failed` | The lab didn't return results. Dr. Jev may be busy. Try again in a minute. | Get a second opinion |
+| `diagnose_failed` | The lab didn't return results. Dr. Slop may be busy. Try again in a minute. | Get a second opinion |
 | `not_found` | We can't find that chart. The link may be wrong. | Examine another patient |
 | `generic` | Something went wrong on our side. Try again in a minute. | Get a second opinion |
 
