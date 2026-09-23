@@ -24,7 +24,7 @@ export const intake = {
   eyebrow: "Now seeing patients",
   headline: "The doctor can see you now",
   subhead:
-    "Paste a landing page and the doctor will check it for AI slop: purple gradients, pill badges, buzzwords and the rest.",
+    "Paste your website and the doctor will check it for AI slop: purple gradients, pill badges, buzzwords and the rest.",
   fieldLabel: "Patient's URL",
   fieldPlaceholder: "yoursite.com",
   fieldHelp: "We photograph the page and examine the design. It takes about 30 seconds.",

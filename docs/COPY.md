@@ -69,7 +69,7 @@ Rules of thumb:
 ### Intake (home)
 - Eyebrow (mono): Now seeing patients
 - Headline: The doctor can see you now
-- Subhead: Paste a landing page and the doctor will check it for AI slop: purple gradients, pill badges, buzzwords and the rest.
+- Subhead: Paste your website and the doctor will check it for AI slop: purple gradients, pill badges, buzzwords and the rest.
 - Field label: Patient's URL
 - Field placeholder: yoursite.com
 - Field help: We photograph the page and examine the design. It takes about 30 seconds.
