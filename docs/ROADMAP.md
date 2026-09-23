@@ -21,7 +21,7 @@ Tasks marked **USER** need the founder to create an account, an OAuth app or an 
 
 ## Phase 0: Foundation & Setup
 
-> **Goal:** A running Next.js + Convex app with the Slop Doctor design system, sign-in with GitHub and Google, and every provider key configured.
+> **Goal:** A running Next.js + Convex app with the Slop Doctor design system, sign-in with Google, and every provider key configured.
 
 **Reference sections — read these before starting this phase:**
 - PRD: § 2. Technical Architecture (§ Stack Integration Guide, § Repository Structure), § 9. Auth Implementation, § 12. Dependencies & Integrations
@@ -48,17 +48,17 @@ Tasks marked **USER** need the founder to create an account, an OAuth app or an 
   Files: `convex/schema.ts`, `convex/tsconfig.json`, `src/app/ConvexClientProvider.tsx`, `src/app/layout.tsx`, `.env.local`
   Notes: `pnpm add convex`, then `npx convex dev --once --configure new` with project name `slop-doctor` (the founder is logged in to the Convex CLI). Start with a schema containing only `authTables` (added in TASK-006). The client provider is `"use client"` and creates a `ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!)`. Verify: `npx convex dev --once` succeeds and `.env.local` holds `NEXT_PUBLIC_CONVEX_URL` and `CONVEX_DEPLOYMENT`.
 
-- [x] **TASK-006** — Wire Convex Auth with GitHub and Google
+- [x] **TASK-006** — Wire Convex Auth with Google
   Files: `convex/auth.ts`, `convex/auth.config.ts`, `convex/http.ts`, `convex/schema.ts`, `src/proxy.ts`, `src/app/layout.tsx`, `src/app/ConvexClientProvider.tsx`
-  Notes: Follow PRD § 9 and § 2 Stack Integration Guide step 3, copying the pattern from `product-os-dashboard` (`convex/auth.ts`, `convex/auth.config.ts`, `src/middleware.ts` → `src/proxy.ts` because Next 16 deprecates `middleware.ts`, and the `(product)/ConvexClientProvider.tsx` + layout) but with providers `[GitHub, Google]` only and no protected routes. `pnpm add @convex-dev/auth @auth/core`; run `npx @convex-dev/auth --skip-git-check` to set `JWT_PRIVATE_KEY`, `JWKS` and `SITE_URL=http://localhost:3000`. Verify: `npx convex dev --once` deploys; `pnpm dev` loads with no console errors.
+  Notes: Follow PRD § 9 and § 2 Stack Integration Guide step 3, copying the pattern from `product-os-dashboard` (`convex/auth.ts`, `convex/auth.config.ts`, `src/middleware.ts` → `src/proxy.ts` because Next 16 deprecates `middleware.ts`, and the `(product)/ConvexClientProvider.tsx` + layout) but with the `[Google]` provider only and no protected routes (GitHub sign-in was removed at the founder's request, 23 Sep 2026). `pnpm add @convex-dev/auth @auth/core`; run `npx @convex-dev/auth --skip-git-check` to set `JWT_PRIVATE_KEY`, `JWKS` and `SITE_URL=http://localhost:3000`. Verify: `npx convex dev --once` deploys; `pnpm dev` loads with no console errors.
 
-- [ ] **TASK-007** — **USER** Create the OAuth apps and set their env vars
+- [ ] **TASK-007** — **USER** Create the Google OAuth client and set its env vars
   Files: (none; Convex env)
-  Notes: The founder creates a GitHub OAuth app (callback `https://<dev-deployment>.convex.site/api/auth/callback/github`) and a Google OAuth web client (redirect URI `…/api/auth/callback/google`), then runs `npx convex env set AUTH_GITHUB_ID …` and the same for `AUTH_GITHUB_SECRET`, `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`. The agent prints the exact callback URLs from `.env.local`'s deployment name. Verify: `npx convex env list` shows all four.
+  Notes: The founder creates a Google OAuth web client (redirect URI `https://<dev-deployment>.convex.site/api/auth/callback/google`), then runs `npx convex env set AUTH_GOOGLE_ID …` and `npx convex env set AUTH_GOOGLE_SECRET …`. The agent prints the exact redirect URI from `.env.local`'s deployment name. Verify: `npx convex env list` shows both.
 
 - [ ] **TASK-008** — Header with sign in and sign out
   Files: `src/components/features/Header.tsx`, `src/components/features/Header.module.css`, `src/app/layout.tsx`
-  Notes: Wordmark "Slop Doctor" (Switzer 700 per DESIGN.md typography: 700 is reserved for the wordmark) on the left. Right: `button-ghost` "Sign in" (scrolls to and opens the sign-in panel on `/`) or "Sign out" (`useAuthActions().signOut()`), driven by `useConvexAuth()`. 1px `outline-variant` hairline under the header. Copy from `src/lib/copy.ts`. Verify: sign in with GitHub and Google in the browser and land back on `/` signed in; sign out works.
+  Notes: Wordmark "Slop Doctor" (Switzer 700 per DESIGN.md typography: 700 is reserved for the wordmark) on the left. Right: `button-ghost` "Sign in" (scrolls to and opens the sign-in panel on `/`) or "Sign out" (`useAuthActions().signOut()`), driven by `useConvexAuth()`. 1px `outline-variant` hairline under the header. Copy from `src/lib/copy.ts`. Verify: sign in with Google in the browser and land back on `/` signed in; sign out works.
 
 - [ ] **TASK-009** — **USER** Provider API keys
   Files: (none; Convex env)
@@ -198,7 +198,7 @@ Tasks marked **USER** need the founder to create an account, an OAuth app or an 
   - `panel-grid` header band with eyebrow (label-mono), headline (display-lg), subhead (body-lg)
   - `input-field` with label, placeholder and help text; `button-primary`
   - client-side `validateUrl` from `convex/lib/urls.ts` on submit → inline `field-help is-error`
-  - signed out → `SignInPanel` opens inline with "Continue with GitHub" / "Continue with Google" (`button-secondary`) and the sign-in note; `redirectTo` keeps `?url=` so the input is restored after OAuth
+  - signed out → `SignInPanel` opens inline with "Continue with Google" (`button-secondary`) and the sign-in note; `redirectTo` keeps `?url=` so the input is restored after OAuth
   - signed in → `useMutation(api.scans.create)`, with the button disabled while pending; `ConvexError` codes map to `copy.errors`
 
   Keep `activeScanId` state in `page.tsx`, mirrored to `?chart=`. Verify: invalid and private URLs show inline errors; a signed-in submit creates a scan (visible in the dashboard).
@@ -358,7 +358,7 @@ Tasks marked **USER** need the founder to create an account, an OAuth app or an 
   - **Agent:** writes `docs/DEPLOY.md` with the exact steps and runs `npx convex deploy` once the founder confirms.
   - **Founder:**
     - creates the Vercel project from the repo, setting build command `npx convex deploy --cmd 'pnpm build'` and `CONVEX_DEPLOY_KEY`
-    - creates prod OAuth apps with prod Convex callbacks
+    - creates a prod Google OAuth client with the prod Convex redirect URI
     - sets every Convex env var with `--prod`, including `SITE_URL` = the Vercel URL
     - sets `JWT_PRIVATE_KEY`/`JWKS` via `npx @convex-dev/auth --prod`
 

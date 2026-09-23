@@ -5,7 +5,7 @@ test("intake renders and a signed-out submit opens sign-in", async ({ page }) =>
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("The doctor can see you now");
   await page.getByLabel("Patient's URL").fill("example.com");
   await page.getByRole("button", { name: "Sign in to see the doctor" }).click();
-  await expect(page.getByRole("button", { name: "Continue with GitHub" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Continue with GitHub" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
 });
 

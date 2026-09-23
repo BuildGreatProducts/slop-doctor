@@ -16,7 +16,6 @@ export const intake = {
   fieldHelp: "We photograph the page and examine the design. It takes about 30 seconds.",
   submitSignedIn: "Start examination",
   submitSignedOut: "Sign in to see the doctor",
-  continueWithGitHub: "Continue with GitHub",
   continueWithGoogle: "Continue with Google",
   signInNote: "Signing in keeps the clinic open. You get 10 examinations a day.",
   recordsHeading: "Your patient records",

@@ -66,7 +66,7 @@ Rules of thumb:
 - Field help: We photograph the page and examine the design. It takes about 30 seconds.
 - Primary button (signed in): Start examination
 - Primary button (signed out): Sign in to see the doctor
-- Sign-in choices: "Continue with GitHub", "Continue with Google"
+- Sign-in choice: "Continue with Google"
 - Sign-in note: Signing in keeps the clinic open. You get 10 examinations a day.
 - Records heading: Your patient records
 - Records empty: No patients yet. Your charts will appear here.

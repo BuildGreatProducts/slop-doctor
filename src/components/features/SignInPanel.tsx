@@ -11,9 +11,6 @@ export function SignInPanel({ url }: { url: string }) {
   return (
     <div id="sign-in" className={styles.signIn}>
       <div className={styles.providers}>
-        <button type="button" className="btn btn-secondary" onClick={() => void signIn("github", { redirectTo })}>
-          {intake.continueWithGitHub}
-        </button>
         <button type="button" className="btn btn-secondary" onClick={() => void signIn("google", { redirectTo })}>
           {intake.continueWithGoogle}
         </button>

@@ -13,7 +13,7 @@ A signed-in visitor pastes a URL. Slop Doctor photographs the page with Firecraw
 This PRD covers the whole MVP:
 
 - **Core loop:** sign in → paste URL → watch the live examination → read the chart → copy the discharge papers.
-- **P0:** Convex Auth (GitHub, Google), the four-stage pipeline (capture, lab, examine, diagnose), scoring, the live scanner, the chart, public share links, per-user and global rate limits.
+- **P0:** Convex Auth (Google), the four-stage pipeline (capture, lab, examine, diagnose), scoring, the live scanner, the chart, public share links, per-user and global rate limits.
 - **P1:** patient records (past charts), 24-hour result cache, "Get a second opinion", Open Graph metadata for share links.
 
 No payments. Out-of-scope items are listed in § 13.
@@ -52,7 +52,7 @@ To enable it:
 ```mermaid
 flowchart LR
   B[Browser<br/>Next.js 16 app] -- reactive queries / mutations --> C[(Convex<br/>DB + storage)]
-  B -- OAuth redirect --> GH[GitHub / Google]
+  B -- OAuth redirect --> GH[Google]
   C -- Convex Auth HTTP routes --> GH
   C -- scheduler --> P1[action: capture]
   P1 -- scrape --> FC[Firecrawl]
@@ -86,7 +86,7 @@ Any stage failure sets `status: "failed"` with an `error` copy key (never a raw 
 | Frontend | Next.js 16 (App Router), React 19, plain CSS with design tokens | The founder's framework. One page plus a share route; plain CSS keeps tokens from `docs/DESIGN.md` authoritative (copied from product-os-dashboard) |
 | Backend | Convex (queries, mutations, scheduled Node actions) | The founder's choice. The scheduler chains pipeline stages; reactive queries stream findings to the scanner with no polling |
 | Database | Convex database + Convex file storage | Scans, findings and screenshots in one place; storage serves screenshot URLs |
-| Auth | Convex Auth (`@convex-dev/auth`), GitHub + Google OAuth | The founder's choice. Sign-in bounds cost; same setup as product-os-dashboard minus Password/Resend |
+| Auth | Convex Auth (`@convex-dev/auth`), Google OAuth only | The founder's choice. Sign-in bounds cost; same setup as product-os-dashboard minus GitHub, Password and Resend |
 | Payments | None | Free app; the founder said no payments |
 | Screenshot + page capture | Firecrawl (`firecrawl` SDK) | One call returns a full-page screenshot, HTML, markdown and branding (fonts, colours) |
 | Vision | Gemini Flash-Lite (`gemini-3.1-flash-lite`) via `@google/genai` | Cheapest capable vision model; native bounding boxes for the overlay; structured JSON output |
@@ -154,7 +154,7 @@ const res = await jev.systemOne({ state, questions });
 - Keep state small and relevant: region calls get only that region and page fonts, palette and colour scheme (per the Jev 1.13 jaggedness guidance).
 
 **Gotchas:**
-- The Convex Auth OAuth callback URLs are `https://<deployment>.convex.site/api/auth/callback/github` and `…/google`. `SITE_URL` must be the Next app origin (`http://localhost:3000` in dev).
+- The Convex Auth OAuth callback URL is `https://<deployment>.convex.site/api/auth/callback/google`. `SITE_URL` must be the Next app origin (`http://localhost:3000` in dev).
 - Convex action timeout is 10 minutes, and each stage is its own action, so no single action runs long.
 - Convex document limit is 1 MiB: store the screenshot in file storage, never inline. Findings go in their own table.
 - Firecrawl's screenshot URL expires, so never store it; store the Convex storage id.
@@ -169,7 +169,6 @@ const res = await jev.systemOne({ state, questions });
 | `CONVEX_DEPLOY_KEY` | Vercel | Production deploy |
 | `SITE_URL` | Convex env | OAuth redirect back to the app |
 | `JWT_PRIVATE_KEY`, `JWKS` | Convex env | Convex Auth (set by `npx @convex-dev/auth`) |
-| `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET` | Convex env | GitHub OAuth app |
 | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | Convex env | Google OAuth client |
 | `FIRECRAWL_API_KEY` | Convex env | Capture |
 | `GEMINI_API_KEY` | Convex env | Vision |
@@ -227,7 +226,7 @@ slop-doctor/
 
 - **Frontend:** Vercel (Next.js). Build command `npx convex deploy --cmd 'pnpm build'` with `CONVEX_DEPLOY_KEY` set in Vercel.
 - **Backend:** Convex Cloud. Dev deployment for local work, prod deployment for Vercel. Every Convex env var in § Stack Integration Guide must be set on **both** deployments (`npx convex env set --prod …`).
-- **OAuth apps:** one GitHub OAuth app and one Google OAuth client per environment (dev and prod), with callbacks pointed at each Convex site URL.
+- **OAuth clients:** one Google OAuth client per environment (dev and prod), with its redirect URI pointed at each Convex site URL.
 - **CI:** Vercel preview builds only. `pnpm typecheck && pnpm test` runs locally before each phase commit.
 
 ### Security Considerations
@@ -495,10 +494,10 @@ The persona is **the Vibe Builder**: someone who shipped a landing page with an 
 ### Epic: Access
 
 **US-001: Sign in to see the doctor**
-As the Vibe Builder, I want to sign in with GitHub or Google so that I can start an examination.
+As the Vibe Builder, I want to sign in with Google so that I can start an examination.
 
 Acceptance Criteria:
-- [ ] Given I'm signed out, when I press "Sign in to see the doctor", then I see "Continue with GitHub" and "Continue with Google".
+- [ ] Given I'm signed out, when I press "Sign in to see the doctor", then I see "Continue with Google".
 - [ ] Given I finish OAuth, when I return to `/`, then the primary button reads "Start examination" and my URL input is preserved.
 - [ ] Edge case: OAuth cancelled → back on `/` signed out, with no error banner.
 
@@ -558,9 +557,9 @@ Acceptance Criteria:
 
 **FR-001: OAuth sign-in**
 Priority: P0
-Description: Convex Auth with GitHub and Google providers. Header shows "Sign in"/"Sign out". The signed-out primary action opens `SignInPanel` inline under the URL field (no separate route).
+Description: Convex Auth with the Google provider only. Header shows "Sign in"/"Sign out". The signed-out primary action opens `SignInPanel` inline under the URL field (no separate route).
 Acceptance Criteria:
-- Both providers complete a round trip in dev.
+- Google sign-in completes a round trip in dev.
 - `useConvexAuth().isAuthenticated` drives the button label.
 Related Stories: US-001
 
@@ -856,19 +855,17 @@ None. Sign-in is inline.
 ## 9. Auth Implementation
 
 ### Auth Flow
-1. The user presses a provider button → `useAuthActions().signIn("github" | "google", { redirectTo: "/" + currentSearch })`.
+1. The user presses a provider button → `useAuthActions().signIn("google", { redirectTo: "/" + currentSearch })`.
 2. The provider redirects to `https://<deployment>.convex.site/api/auth/callback/<provider>`. Convex Auth creates or updates `users` and `authAccounts`, then redirects to `SITE_URL` with a code.
 3. `convexAuthNextjsMiddleware` (in `src/proxy.ts`) exchanges the code and sets the auth cookies. `ConvexAuthNextjsProvider` authenticates the Convex client.
 
 ### Provider Configuration
 ```ts
 // convex/auth.ts
-import GitHub from "@auth/core/providers/github";
 import Google from "@auth/core/providers/google";
 import { convexAuth } from "@convex-dev/auth/server";
-export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({ providers: [GitHub, Google] });
+export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({ providers: [Google] });
 ```
-- **GitHub:** create an OAuth app with homepage `SITE_URL` and callback `https://<deployment>.convex.site/api/auth/callback/github`, then `npx convex env set AUTH_GITHUB_ID … AUTH_GITHUB_SECRET …`.
 - **Google:** create an OAuth client (Web) in Google Cloud with authorised redirect URI `https://<deployment>.convex.site/api/auth/callback/google`, then set `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`.
 
 ### Protected Routes
@@ -971,7 +968,6 @@ Skipped. Slop Doctor is free and has no payments (founder decision). If payments
 | Firecrawl | Screenshot, HTML, markdown, branding | Free credits for dev, paid plan in prod | `FIRECRAWL_API_KEY` | 1 credit per scrape; plan concurrency |
 | Google Gemini API | Region description + boxes | Pay as you go | `GEMINI_API_KEY` | Flash-Lite rate limits per project |
 | TypeSafe | Jev judgments | Pay as you go ($0.042/Mtok input) | `TYPESAFE_API_KEY` | 1,200 req/min, 250k tok/s (dynamic) |
-| GitHub OAuth | Sign-in | Free | `AUTH_GITHUB_ID/SECRET` | — |
 | Google OAuth | Sign-in | Free | `AUTH_GOOGLE_ID/SECRET` | — |
 | Vercel | Hosting | Hobby | — | — |
 
@@ -996,5 +992,5 @@ Skipped. Slop Doctor is free and has no payments (founder decision). If payments
 2. **Gemini model id.** `gemini-3.1-flash-lite` is the stable Flash-Lite at writing. If it is unavailable on the key's project, fall back to `gemini-2.5-flash-lite`. It is a single constant in `examine.ts`.
 3. **Firecrawl plan.** Which paid tier at launch? Default: the smallest plan that covers 500 scrapes a day at the global cap, or lower the global cap to match the plan.
 4. **Screenshot retention.** Keep forever or expire? Default: keep for MVP (tiny storage). Add a cron to delete screenshots older than 90 days if storage grows.
-5. **Global cap abuse.** The global cap (500 a day) can be exhausted by about 50 throwaway accounts, which then shows everyone `clinic_full`. Options: a smaller per-user limit and separate global sub-bucket for brand-new accounts (GitHub `created_at` is available in the Convex Auth `profile()` callback); Cloudflare Turnstile on the intake form; an alert at 80% of the cap. Default: launch with the cap and add the new-account sub-bucket if it's ever hit.
+5. **Global cap abuse.** The global cap (500 a day) can be exhausted by about 50 throwaway accounts, which then shows everyone `clinic_full`. Options: Cloudflare Turnstile on the intake form; a smaller per-user limit and separate global sub-bucket for accounts in their first day; an alert at 80% of the cap. Google doesn't expose account age, so throwaway Google accounts can't be spotted at sign-in. Default: launch with the cap and add Turnstile if it's ever hit.
 6. **Cache across users.** FR-018 shares a cached chart between users for the same URL. That's fine because charts are public by link, but it means user B sees a chart "created by" user A's run. Default: acceptable; the chart shows no user data.
