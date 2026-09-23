@@ -28,7 +28,7 @@ test("a completed chart renders for a signed-out visitor", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Slop chart for");
   await expect(page.getByText("Slop Index", { exact: true })).toBeVisible();
   await expect(page.locator(".region-box").first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "Copy discharge papers" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Share discharge papers" })).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
 });
@@ -57,4 +57,23 @@ test("a chart symptom expands to explain itself", async ({ page }) => {
   await first.locator("summary").click();
   await expect(first).toHaveAttribute("open");
   await expect(first.getByText(/^(Found in|Not found|Checked)/)).toBeVisible();
+});
+
+test("the share popup shows the chart image and prefilled share links", async ({ page, request }) => {
+  const id = process.env.E2E_CHART_ID;
+  test.skip(!id, "Set E2E_CHART_ID to a completed scan (pnpm seed:fixture prints one)");
+  await page.goto(`/chart/${id}`);
+  await page.getByRole("button", { name: "Share discharge papers" }).click();
+  const dialog = page.getByRole("dialog", { name: "Share your slop chart" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("img")).toHaveJSProperty("naturalWidth", 1200);
+  await expect(dialog.getByRole("link", { name: "Post on X" })).toHaveAttribute("href", /^https:\/\/x\.com\/intent\/post\?text=Dr\.%20Slop/);
+  await expect(dialog.getByRole("link", { name: "Share on LinkedIn" })).toHaveAttribute(
+    "href",
+    new RegExp(`linkedin\\.com/sharing/share-offsite/\\?url=.*${id}`),
+  );
+  const image = await request.get(`/chart/${id}/opengraph-image`);
+  expect(image.headers()["content-type"]).toBe("image/png");
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
 });

@@ -736,6 +736,16 @@ Description: `/chart/[id]` is a client page that renders `Chart` + static `Scann
 Acceptance Criteria: works signed out in a private window.
 Related Stories: US-005
 
+**FR-021: Share popup and share image**
+Priority: P1
+Description:
+- `src/app/chart/[id]/opengraph-image.tsx` renders a 1200×630 PNG with `next/og` for every chart: host, diagnosis with tick or cross, one-liner, Slop Index figure and meter in its colour, the top three symptoms with bars (visual symptoms first), and the three determinations with their faces. Unfinished or missing charts get a brand card, cached for 60 seconds; finished charts are cached as immutable. It is the chart page's `og:image` and `twitter:image` (`metadataBase` is `https://www.slopdoctor.app` in production).
+- "Share discharge papers" on the chart opens a native `<dialog>` with the image and: "Post on X" (`x.com/intent/post` with the text and link), "Share on LinkedIn" (`linkedin.com/sharing/share-offsite` with the link), "Copy link" (button reads "Link copied" for 2 s; a selectable link appears if the clipboard is blocked) and "Download image" (`slop-chart-{host}.png`).
+- Share text: "Dr. Slop diagnosed {host} with {tier} (Slop Index {n}). Get your landing page examined:"
+- Fonts for the image are TTF copies in `assets/fonts/` (Satori can't read WOFF2); colours come from `src/lib/tokens.ts`, which a test keeps in sync with `tokens.css`.
+Acceptance Criteria: the image renders for sloppy, clean and missing charts; the popup's links are prefilled; it works on mobile; Escape closes it.
+Related Stories: US-005
+
 **FR-017: Second opinion**
 Priority: P1
 Description: "Get a second opinion" calls `scans.rescan({ scanId })`, which reads the stored URL server-side, skips the cache and is still rate limited. The client never sends the fetch URL back.

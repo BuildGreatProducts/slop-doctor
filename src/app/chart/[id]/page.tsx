@@ -13,12 +13,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!scan || scan.status !== "complete" || scan.slopIndex === undefined || !scan.tier) return {};
   const tier = tiers[scan.tier as TierKey];
   const title = `${scan.host}: ${tier.name} (Slop Index ${scan.slopIndex})`;
-  const images = scan.screenshotUrl ? [scan.screenshotUrl] : undefined;
+  // The image comes from ./opengraph-image.tsx, the generated share card.
   return {
     title,
     description: tier.oneLiner,
-    openGraph: { title, description: tier.oneLiner, images },
-    twitter: { card: "summary_large_image", title, description: tier.oneLiner, images },
+    openGraph: { title, description: tier.oneLiner },
+    twitter: { card: "summary_large_image", title, description: tier.oneLiner },
   };
 }
 

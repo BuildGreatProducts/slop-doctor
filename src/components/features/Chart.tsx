@@ -1,7 +1,7 @@
 "use client";
 
 import { SYMPTOMS_BY_KEY, type SymptomGroup, type TierKey } from "../../../convex/lib/taxonomy";
-import { chart, regionKindLabels, scanner, tiers } from "@/lib/copy";
+import { chart, regionKindLabels, scanner, share, tiers } from "@/lib/copy";
 import { type Determination, describeDeterminations, isHealthy } from "@/lib/determinations";
 import { barTone, findingName } from "@/lib/findings";
 import type { Finding, PublicScan } from "@/lib/types";
@@ -17,9 +17,7 @@ type Props = {
   scan: PublicScan;
   findings: Finding[];
   cached?: boolean;
-  /** Set when the clipboard is unavailable: the link is shown for copying by hand. */
-  fallbackLink?: string | null;
-  onCopyLink: () => void;
+  onShare: () => void;
   onSecondOpinion?: () => void;
   onExamineAnother: () => void;
 };
@@ -105,7 +103,7 @@ function DeterminationCard({ label, value }: { label: string; value: Determinati
   );
 }
 
-export function Chart({ scan, findings, cached, fallbackLink, onCopyLink, onSecondOpinion, onExamineAnother }: Props) {
+export function Chart({ scan, findings, cached, onShare, onSecondOpinion, onExamineAnother }: Props) {
   const tier = (scan.tier ?? "clean") as TierKey;
   const regionKinds = new Map((scan.regions ?? []).map((r) => [r.id, r.kind]));
   const groups = groupRows(findings, regionKinds);
@@ -180,25 +178,9 @@ export function Chart({ scan, findings, cached, fallbackLink, onCopyLink, onSeco
 
           <DoctorsNote prescriptions={scan.prescriptions ?? []} />
 
-          {fallbackLink && (
-            <div className="field">
-              <input
-                className="input"
-                readOnly
-                value={fallbackLink}
-                aria-describedby="copy-fallback"
-                autoFocus
-                onFocus={(e) => e.currentTarget.select()}
-              />
-              <span id="copy-fallback" className="field-help">
-                {chart.copyFallback}
-              </span>
-            </div>
-          )}
-
           <div className={styles.actions}>
-            <button type="button" className="btn btn-primary" onClick={onCopyLink}>
-              {chart.copyDischarge}
+            <button type="button" className="btn btn-primary" onClick={onShare}>
+              {share.button}
             </button>
             {onSecondOpinion && (
               <button type="button" className="btn btn-secondary" onClick={onSecondOpinion}>
