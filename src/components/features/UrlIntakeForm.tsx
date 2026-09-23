@@ -3,15 +3,23 @@
 import { useConvexAuth, useMutation } from "convex/react";
 import { ConvexError } from "convex/values";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { validateUrl } from "../../../convex/lib/urls";
 import { type ErrorKey, errors, intake } from "@/lib/copy";
 import { errorMessage } from "@/lib/errors";
 import styles from "./Intake.module.css";
-import { SignInPanel } from "./SignInPanel";
+import { SignInDialog } from "./SignInDialog";
 
-export function UrlIntakeForm({ initialUrl, openSignIn }: { initialUrl: string; openSignIn: boolean }) {
+type Props = {
+  initialUrl: string;
+  /** Open the sign-in popup straight away (the header's "Sign in"). */
+  openSignIn: boolean;
+  /** Start the examination for `initialUrl` as soon as the visitor is signed in (back from Google). */
+  autoStart: boolean;
+};
+
+export function UrlIntakeForm({ initialUrl, openSignIn, autoStart }: Props) {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useConvexAuth();
   const create = useMutation(api.scans.create);
@@ -19,6 +27,33 @@ export function UrlIntakeForm({ initialUrl, openSignIn }: { initialUrl: string; 
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [showSignIn, setShowSignIn] = useState(openSignIn);
+  const autoStarted = useRef(false);
+
+  const run = async (target: string) => {
+    try {
+      const { scanId, cached } = await create({ url: target });
+      router.push(`/?chart=${scanId}${cached ? "&cached=1" : ""}`);
+    } catch (err) {
+      const data = err instanceof ConvexError ? (err.data as { code?: ErrorKey; retryAfterMs?: number }) : {};
+      if (data.code === "signed_out") setShowSignIn(true);
+      setError(errorMessage(data.code, data.retryAfterMs));
+      setPending(false);
+    }
+  };
+
+  const start = async (target: string) => {
+    setPending(true);
+    await run(target);
+  };
+
+  // Back from Google with the URL they typed: carry on where they left off, once.
+  const autoStarting = autoStart && isAuthenticated && !error && validateUrl(initialUrl).ok;
+  useEffect(() => {
+    if (!autoStarting || autoStarted.current) return;
+    autoStarted.current = true;
+    void run(initialUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once, when auth resolves
+  }, [autoStarting, initialUrl]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -32,16 +67,7 @@ export function UrlIntakeForm({ initialUrl, openSignIn }: { initialUrl: string; 
       setShowSignIn(true);
       return;
     }
-    setPending(true);
-    try {
-      const { scanId, cached } = await create({ url });
-      router.push(`/?chart=${scanId}${cached ? "&cached=1" : ""}`);
-    } catch (err) {
-      const data = err instanceof ConvexError ? (err.data as { code?: ErrorKey; retryAfterMs?: number }) : {};
-      if (data.code === "signed_out") setShowSignIn(true);
-      setError(errorMessage(data.code, data.retryAfterMs));
-      setPending(false);
-    }
+    await start(url);
   };
 
   return (
@@ -63,15 +89,15 @@ export function UrlIntakeForm({ initialUrl, openSignIn }: { initialUrl: string; 
             aria-invalid={error ? true : undefined}
             aria-describedby="patient-url-help"
           />
-          <button type="submit" className="btn btn-primary" disabled={isLoading || pending}>
-            {isAuthenticated || isLoading ? intake.submitSignedIn : intake.submitSignedOut}
+          <button type="submit" className="btn btn-primary" disabled={isLoading || pending || autoStarting}>
+            {intake.submit}
           </button>
         </div>
         <span id="patient-url-help" className={`field-help ${error ? "is-error" : ""}`} role={error ? "alert" : undefined}>
           {error ?? intake.fieldHelp}
         </span>
       </div>
-      {showSignIn && !isAuthenticated && <SignInPanel url={url} />}
+      {!isAuthenticated && <SignInDialog open={showSignIn} onClose={() => setShowSignIn(false)} url={url} />}
     </form>
   );
 }
