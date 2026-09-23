@@ -140,6 +140,13 @@ Rotating quips while waiting (every 4 s, in order):
 - Share image fallback (chart missing or unfinished): eyebrow "Now seeing patients", headline "The doctor can see you now"
 - Cached note: This patient was examined in the last 24 hours, so here's that chart.
 
+### Academy referral (bottom of every chart)
+- Eyebrow (mono): Referral
+- Headline: Build something the doctor can't diagnose
+- Body: Dr. Slop refers you to the AI Product Academy. Learn to build products with Claude Code, Codex and Cursor that people will actually pay for. Launch in 30 days or get your money back.
+- Button: Join the AI Product Academy (opens https://www.skool.com/aiapps/about in a new tab)
+- The promise and guarantee are quoted from the academy's own page; update both together if the offer changes.
+
 ### Tier names and one-liners
 | Tier | Name | One-liner |
 |---|---|---|

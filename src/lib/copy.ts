@@ -138,6 +138,14 @@ export const share = {
   cardFallbackHeadline: "The doctor can see you now",
 };
 
+export const academy = {
+  eyebrow: "Referral",
+  headline: "Build something the doctor can't diagnose",
+  body: "Dr. Slop refers you to the AI Product Academy. Learn to build products with Claude Code, Codex and Cursor that people will actually pay for. Launch in 30 days or get your money back.",
+  button: "Join the AI Product Academy",
+  href: "https://www.skool.com/aiapps/about",
+};
+
 export type TierKey = "clean" | "sniffles" | "slopitis" | "chronic" | "code_purple";
 
 export const tiers: Record<TierKey, { name: string; oneLiner: string }> = {

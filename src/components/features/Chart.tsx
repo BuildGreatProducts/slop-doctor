@@ -6,6 +6,7 @@ import { type Determination, describeDeterminations, isHealthy } from "@/lib/det
 import { barTone, findingName } from "@/lib/findings";
 import type { Finding, PublicScan } from "@/lib/types";
 import styles from "./Chart.module.css";
+import { AcademyReferral } from "./AcademyReferral";
 import { DoctorsNote } from "./DoctorsNote";
 import { MoodFace } from "./MoodFace";
 import { Scanner } from "./Scanner";
@@ -193,6 +194,8 @@ export function Chart({ scan, findings, cached, onShare, onSecondOpinion, onExam
           </div>
         </div>
       </div>
+
+      <AcademyReferral />
     </div>
   );
 }

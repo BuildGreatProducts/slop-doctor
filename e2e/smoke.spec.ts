@@ -77,3 +77,14 @@ test("the share popup shows the chart image and prefilled share links", async ({
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
 });
+
+test("every chart ends with the AI Product Academy referral", async ({ page }) => {
+  const id = process.env.E2E_CHART_ID;
+  test.skip(!id, "Set E2E_CHART_ID to a completed scan (pnpm seed:fixture prints one)");
+  await page.goto(`/chart/${id}`);
+  const referral = page.getByRole("complementary", { name: "Build something the doctor can't diagnose" });
+  await expect(referral).toBeVisible();
+  const link = referral.getByRole("link", { name: "Join the AI Product Academy" });
+  await expect(link).toHaveAttribute("href", "https://www.skool.com/aiapps/about");
+  await expect(link).toHaveAttribute("target", "_blank");
+});
