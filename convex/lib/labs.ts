@@ -18,7 +18,7 @@ export type FindingInput = {
   source: "lab" | "exam";
   regionId?: string;
   probability: number;
-  band: "present" | "inconclusive";
+  band: "present" | "inconclusive" | "absent";
   weight: number;
 };
 
@@ -62,8 +62,16 @@ export function countWords(markdown: string): number {
 const normalizeFont = (f: string) => f.trim().replace(/^["']|["']$/g, "").toLowerCase();
 const inList = (font: string, list: string[]) => list.some((f) => f.toLowerCase() === normalizeFont(font));
 
-function symptom(key: string): FindingInput {
-  return { key, kind: "symptom", source: "lab", probability: 1, band: "present", weight: SYMPTOMS_BY_KEY[key].weight };
+/** A lab test is binary: found (100%) or not found (0%). Both are recorded so the chart shows every test. */
+function symptom(key: string, found: boolean): FindingInput {
+  return {
+    key,
+    kind: "symptom",
+    source: "lab",
+    probability: found ? 1 : 0,
+    band: found ? "present" : "absent",
+    weight: SYMPTOMS_BY_KEY[key].weight,
+  };
 }
 
 export function detectGenerator(html: string, host: string): string | undefined {
@@ -86,14 +94,14 @@ export function runLabs(input: { markdown: string; html: string; host: string; f
 
   const findings: FindingInput[] = [];
   const emDashRate = wordCount > 0 ? (emDashCount / wordCount) * 100 : 0;
-  if (emDashCount >= EM_DASH_MIN_COUNT && emDashRate >= EM_DASH_MIN_PER_100_WORDS) findings.push(symptom("em_dash"));
-  if (buzzwordHits.length >= BUZZWORD_MIN_DISTINCT) findings.push(symptom("buzzwords"));
-  if (loremHits.length > 0) findings.push(symptom("lorem"));
+  findings.push(symptom("em_dash", emDashCount >= EM_DASH_MIN_COUNT && emDashRate >= EM_DASH_MIN_PER_100_WORDS));
+  findings.push(symptom("buzzwords", buzzwordHits.length >= BUZZWORD_MIN_DISTINCT));
+  findings.push(symptom("lorem", loremHits.length > 0));
 
   const primary = input.fonts[0];
   if (primary !== undefined) {
-    if (inList(primary, DEFAULT_FONTS)) findings.push(symptom("inter_itis"));
-    if (input.fonts.some((f) => inList(f, TREND_FONTS))) findings.push(symptom("font_fashion"));
+    findings.push(symptom("inter_itis", inList(primary, DEFAULT_FONTS)));
+    findings.push(symptom("font_fashion", input.fonts.some((f) => inList(f, TREND_FONTS))));
     if (!inList(primary, DEFAULT_FONTS) && !inList(primary, TREND_FONTS)) {
       findings.push({
         key: "distinctive_type",

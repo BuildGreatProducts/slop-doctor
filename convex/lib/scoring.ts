@@ -14,7 +14,7 @@ import {
 export type ScoredFinding = {
   key: string;
   kind: "symptom" | "vital";
-  band: "present" | "inconclusive";
+  band: "present" | "inconclusive" | "absent";
   probability: number;
   weight: number;
 };

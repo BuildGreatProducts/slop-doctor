@@ -1,17 +1,22 @@
 "use client";
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { nextToReveal, sortForReveal } from "./revealQueue";
+import { nextToReveal, revealDelay, sortForReveal } from "./revealQueue";
 import type { Finding, Region } from "./types";
 
 /**
- * Paces findings for the scanner: one every `intervalMs`, in reveal order (docs/PRD.md FR-013).
- * `instant` reveals everything at once (reduced motion, static charts, scans already complete on load).
+ * Paces findings for the scanner, in reveal order (docs/PRD.md FR-013): `intervalMs` between checks in the same
+ * part of the page, `groupPauseMs` when moving to the next region. `instant` reveals everything at once
+ * (reduced motion, static charts, scans already complete on load).
  */
 export function useRevealQueue(
   findings: Finding[] | undefined,
   regions: Region[] | undefined,
-  { intervalMs = 450, instant = false }: { intervalMs?: number; instant?: boolean } = {},
+  {
+    intervalMs = 160,
+    groupPauseMs = 650,
+    instant = false,
+  }: { intervalMs?: number; groupPauseMs?: number; instant?: boolean } = {},
 ): { revealed: Finding[]; drained: boolean } {
   const regionIndex = useMemo(() => new Map((regions ?? []).map((r, i) => [r.id, i])), [regions]);
   const [revealedIds, setRevealedIds] = useState<string[]>([]);
@@ -22,9 +27,12 @@ export function useRevealQueue(
     const revealedSet = new Set(revealedIds);
     const next = nextToReveal(all, revealedSet, regionIndex);
     if (!next) return;
-    const timer = setTimeout(() => setRevealedIds((ids) => [...ids, next._id]), intervalMs);
+    const lastId = revealedIds.at(-1);
+    const last = lastId ? all.find((f) => f._id === lastId) : undefined;
+    const delay = revealDelay(next, last, { intervalMs, groupPauseMs });
+    const timer = setTimeout(() => setRevealedIds((ids) => [...ids, next._id]), delay);
     return () => clearTimeout(timer);
-  }, [all, revealedIds, regionIndex, intervalMs, instant]);
+  }, [all, revealedIds, regionIndex, intervalMs, groupPauseMs, instant]);
 
   return useMemo(() => {
     if (instant) return { revealed: sortForReveal(all, regionIndex), drained: true };

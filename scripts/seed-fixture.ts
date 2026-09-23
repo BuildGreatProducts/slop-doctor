@@ -7,7 +7,10 @@ import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { chromium } from "@playwright/test";
+import { regionQuestions } from "../convex/lib/jevQuestions";
 import { runLabs } from "../convex/lib/labs";
+import { bandFor } from "../convex/lib/scoring";
+import type { RegionKind } from "../convex/lib/taxonomy";
 
 const live = process.argv.includes("--live");
 const convexRun = (fn: string, args: object) =>
@@ -43,7 +46,10 @@ const WEIGHTS: Record<string, number> = {
   not_x_but_y: 1,
 };
 
-const band = (p: number) => (p >= 0.65 ? "present" : "inconclusive") as "present" | "inconclusive";
+const band = bandFor;
+// Every other applicable check gets a low, stable score, as a real run records them all.
+const lowScore = (key: string, regionId: string) =>
+  0.02 + ([...(key + regionId)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 997, 7) % 15) / 100;
 
 async function main() {
   const browser = await chromium.launch();
@@ -76,11 +82,13 @@ async function main() {
     description: r.description,
     visibleText: "",
   }));
-  const regionFindings = regions.flatMap((r) =>
-    REGION_ANSWERS[r.kind].map(([key, p]) => ({
-      key, kind: "symptom" as const, source: "exam" as const, regionId: r.id, probability: p, band: band(p), weight: WEIGHTS[key],
-    })),
-  );
+  const regionFindings = regions.flatMap((r) => {
+    const recorded = new Map(REGION_ANSWERS[r.kind]);
+    return Object.keys(regionQuestions(r.kind as RegionKind)).map((key) => {
+      const p = recorded.get(key) ?? lowScore(key, r.id);
+      return { key, kind: "symptom" as const, source: "exam" as const, regionId: r.id, probability: p, band: band(p), weight: WEIGHTS[key] };
+    });
+  });
   const pageFindings = (
     [["dark_default", 0.92], ["vague_value", 0.88], ["rule_of_three", 0.79], ["not_x_but_y", 0.74]] as [string, number][]
   ).map(([key, p]) => ({ key, kind: "symptom" as const, source: "exam" as const, probability: p, band: band(p), weight: WEIGHTS[key] }));

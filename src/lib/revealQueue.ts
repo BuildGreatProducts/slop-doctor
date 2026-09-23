@@ -29,3 +29,21 @@ export function nextToReveal<T extends Revealable>(
 export function sortForReveal<T extends Revealable>(findings: T[], regionIndex: Map<string, number>): T[] {
   return [...findings].sort((a, b) => compare(revealRank(a, regionIndex), revealRank(b, regionIndex)));
 }
+
+/** Which part of the page a finding belongs to: the lab, one region, or the whole page. */
+export function revealGroup(f: Revealable): string {
+  if (f.source === "lab") return "lab";
+  return f.regionId ?? "page";
+}
+
+/**
+ * How long to wait before revealing `next`: a short beat between checks in the same part of the page,
+ * and a longer pause when the doctor moves on to a new region, so the scan line has time to travel.
+ */
+export function revealDelay(
+  next: Revealable,
+  last: Revealable | undefined,
+  { intervalMs, groupPauseMs }: { intervalMs: number; groupPauseMs: number },
+): number {
+  return !last || revealGroup(next) !== revealGroup(last) ? groupPauseMs : intervalMs;
+}

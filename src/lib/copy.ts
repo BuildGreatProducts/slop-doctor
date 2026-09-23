@@ -60,19 +60,35 @@ export const waitingRoom = {
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
+const percent = (p: number) => `${Math.round(p * 100)}%`;
+
+export const regionKindLabels: Record<string, string> = {
+  nav: "Navigation",
+  hero: "Hero",
+  logos: "Logo strip",
+  features: "Features",
+  testimonials: "Testimonials",
+  pricing: "Pricing",
+  stats: "Stats",
+  steps: "Steps",
+  cta: "Call to action",
+  footer: "Footer",
+  other: "Section",
+};
+
 export const scanner = {
   readout: (px: number, region: number, total: number) =>
     `Scanning · Y ${Math.round(px)}px · Region ${pad2(region)}/${pad2(total)}`,
   regionTag: (region: number, name: string, p: number, more: number) =>
-    `${pad2(region)} · ${name} · P ${p.toFixed(2)}${more > 0 ? ` +${more}` : ""}`,
-  regionTagInconclusive: (region: number, name: string) => `${pad2(region)} · ${name} · Inconclusive`,
+    `${pad2(region)} · ${name} · ${percent(p)}${more > 0 ? ` +${more}` : ""}`,
+  regionTagClear: (region: number) => `${pad2(region)} · No symptoms`,
   labResultsHeading: "Lab results",
   labResultsEmpty: "Waiting for the first result.",
-  sourceExam: "Exam",
-  sourceLab: "Lab",
+  groupLab: "Lab tests",
+  groupRegion: (region: number, kind: string) => `Region ${pad2(region)} · ${regionKindLabels[kind] ?? kind}`,
+  groupPage: "Whole page",
+  percent,
   meterLabel: (n: number) => `Slop Index ${n}/100`,
-  probability: (p: number) => `P ${p.toFixed(2)}`,
-  inconclusive: "Inconclusive",
   screenshotAlt: (host: string) => `Screenshot of ${host}`,
 };
 
@@ -84,7 +100,8 @@ export const chart = {
   birthplaceLabel: "Suspected place of birth",
   birthplaceConfirmed: "Confirmed by lab",
   certainty: (pct: number) => `Doctor's certainty ${pct}%`,
-  inconclusive: "Inconclusive: second opinion advised",
+  hunch: (pct: number) => `A hunch · ${pct}% sure`,
+  fromLab: "Based on the lab results",
   prognosisLabel: "Prognosis",
   disagreement: "The doctor and the lab disagree.",
   groups: { visual: "Visual symptoms", copy: "Copy symptoms", lab: "Lab results" },
@@ -109,6 +126,46 @@ export const tiers: Record<TierKey, { name: string; oneLiner: string }> = {
   slopitis: { name: "Acute Slopitis", oneLiner: "The template is showing. Treatment recommended." },
   chronic: { name: "Chronic Template Syndrome", oneLiner: "Most of this page came out of the box." },
   code_purple: { name: "Code Purple", oneLiner: "Terminal slop. We've called the designer." },
+};
+
+// One line of bedside manner for every possible answer, so each card always says something (docs/COPY.md § Chart).
+export const archetypeLines: Record<string, string> = {
+  saas_clone: "Could be any of 4,000 dashboards. Probably is.",
+  demo_day: "Raising a pre-seed round in the hero section.",
+  crypto_fever: "Glows in the dark. Promises the moon.",
+  linear_lookalike: "Moody, precise and suspiciously familiar.",
+  stripe_tribute: "Gradient waves as far as the eye can see.",
+  notion_wannabe: "Hand-drawn doodles, hand-me-down layout.",
+  template_special: "The placeholder personality is still in the box.",
+  actually_designed: "Someone made decisions here. Brave ones.",
+};
+
+export const unknownArchetype = {
+  name: "A medical mystery",
+  line: "Presents as nothing the doctor has seen before.",
+};
+
+export const birthplaceLines: Record<string, string> = {
+  v0: "Born in a shadcn nursery, raised on Geist.",
+  lovable: "Delivered by Lovable, gradients and all.",
+  bolt: "Assembled at speed by Bolt.",
+  framer: "Smoothly animated out of Framer.",
+  webflow: "Adopted from the Webflow template shelter.",
+  tailwind_starter: "Grew up in a Tailwind starter kit.",
+  website_builder: "Came flat-packed from a website builder.",
+  human_designer: "Raised by a human designer. Increasingly rare.",
+};
+
+export const unknownBirthplace = {
+  name: "Place of birth unknown",
+  line: "Found on the hospital steps with no paperwork.",
+};
+
+export const prognosisLines: Record<string, string> = {
+  full_recovery: "Discharge expected by lunchtime.",
+  manageable: "A short course of prescriptions should clear it up.",
+  chronic: "Long-term care recommended.",
+  terminal: "We've made the patient comfortable.",
 };
 
 export const birthplaceLabels: Record<string, string> = {

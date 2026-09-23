@@ -87,17 +87,13 @@ export function Scanner({ scan, revealed, mode, finished, reducedMotion }: Props
             if (!headline) {
               return live ? <div key={r.id} className="region-box is-pending" style={boxStyle(r.box)} /> : null;
             }
-            const name = findingName(headline.lead.key);
+            const modifier = headline.state === "present" ? "" : `is-${headline.state}`;
             return (
-              <div
-                key={r.id}
-                className={`region-box ${styles.box} ${headline.inconclusive ? "is-inconclusive" : ""}`}
-                style={boxStyle(r.box)}
-              >
+              <div key={r.id} className={`region-box ${styles.box} ${modifier}`} style={boxStyle(r.box)}>
                 <span className="region-tag">
-                  {headline.inconclusive
-                    ? scanner.regionTagInconclusive(i + 1, name)
-                    : scanner.regionTag(i + 1, name, headline.lead.probability, headline.more)}
+                  {headline.state === "clear"
+                    ? scanner.regionTagClear(i + 1)
+                    : scanner.regionTag(i + 1, findingName(headline.lead.key), headline.lead.probability, headline.more)}
                 </span>
               </div>
             );

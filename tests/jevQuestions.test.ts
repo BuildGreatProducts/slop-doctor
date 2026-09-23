@@ -102,7 +102,7 @@ describe("states", () => {
 });
 
 describe("interpretRegionAnswers", () => {
-  test("keeps present and inconclusive bands with the region id", () => {
+  test("keeps every answered symptom, low scores included, with the region id", () => {
     const answers: Record<string, Answer> = {
       purple_gradient: { type: "noul", noul: 0.91 },
       glow_orbs: { type: "noul", noul: 0.5 },
@@ -111,6 +111,7 @@ describe("interpretRegionAnswers", () => {
     expect(interpretRegionAnswers("r02", answers)).toEqual([
       { key: "purple_gradient", kind: "symptom", source: "exam", probability: 0.91, band: "present", weight: 3, regionId: "r02" },
       { key: "glow_orbs", kind: "symptom", source: "exam", probability: 0.5, band: "inconclusive", weight: 2, regionId: "r02" },
+      { key: "sparkle", kind: "symptom", source: "exam", probability: 0.1, band: "absent", weight: 1, regionId: "r02" },
     ]);
   });
 });
@@ -129,9 +130,11 @@ describe("interpretPageAnswers", () => {
 
   test("returns page symptoms, vital signs and determinations", () => {
     const r = interpretPageAnswers(answers, {});
-    expect(r.findings.map((f) => [f.key, f.kind])).toEqual([
-      ["dark_default", "symptom"],
-      ["product_ui", "vital"],
+    // Low-scoring symptoms are kept; a low-scoring vital sign isn't a sign of life, so it's dropped.
+    expect(r.findings.map((f) => [f.key, f.kind, f.band])).toEqual([
+      ["dark_default", "symptom", "present"],
+      ["vague_value", "symptom", "absent"],
+      ["product_ui", "vital", "present"],
     ]);
     expect(r.determinations.archetype.choice).toBe("saas_clone");
     expect(r.determinations.birthplaceConfirmed).toBe(false);
