@@ -524,10 +524,11 @@ Acceptance Criteria:
 As the Vibe Builder, I want a chart with a clear diagnosis and prescriptions so that I know what to change.
 
 Acceptance Criteria:
-- [ ] Given the examination completes, then I see the Slop Index, diagnosis, archetype, suspected place of birth with certainty, symptoms grouped as visual, copy and lab, vital signs and up to 3 prescriptions.
-- [ ] Given a determination has confidence < 0.5, then it still names Jev's top answer with its one-liner, marked "A hunch · {nn}% sure".
+- [ ] Given the examination completes, then I see the Slop Index, diagnosis, archetype, suspected place of birth, symptoms grouped as visual, copy and lab, vital signs and up to 3 prescriptions.
+- [ ] Given any determination, then the card names Jev's top answer with its one-liner, whatever its confidence; certainty isn't shown.
 - [ ] Given a determination is missing, then the card shows a fun fallback (and the prognosis follows the tier); it never reads "Inconclusive".
 - [ ] Given the lab fingerprinted a generator, then the place of birth shows "Confirmed by lab".
+- [ ] Given I expand a symptom, then I see what it is in one sentence and where on the page it was found.
 
 **US-005: Share my discharge papers**
 As the Vibe Builder, I want a link to my chart so that I can post it.
@@ -715,12 +716,12 @@ Related Stories: US-003
 **FR-015: Chart**
 Priority: P0
 Description: `Chart` shows:
-- the header "Chart for {host}", the Slop Index in `display-lg` Geist Mono, the diagnosis name and one-liner, and the Slop-o-meter
+- the header "Chart for {host}", the Slop Index in `display-lg` Geist Mono coloured by score (green under 20, amber to 70, red above), the diagnosis name and one-liner, and the Slop-o-meter in the same colour
 - a determinations row (cards):
   - "Presents as" (archetype)
-  - "Suspected place of birth" (birthplace + certainty, or "Confirmed by lab")
+  - "Suspected place of birth" (birthplace, plus "Confirmed by lab" when fingerprinted)
   - "Prognosis", plus the disagreement note when the prognosis maps to a different severity than the tier. Mapping: full_recovery ↔ clean/sniffles, manageable ↔ slopitis, chronic ↔ chronic, terminal ↔ code_purple.
-- symptom groups (visual, copy, lab), each row showing the name, where (region kind) and P
+- symptom groups (visual, copy, lab), one expandable row per symptom (native `<details>`): the name and a `symptom-bar`; expanded, its one-sentence description and the sections where it was found with their scores
 - vital signs
 - `DoctorsNote` with up to 3 prescriptions
 - the action buttons

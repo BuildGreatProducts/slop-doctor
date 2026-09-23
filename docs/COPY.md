@@ -116,13 +116,15 @@ Rotating quips while waiting (every 4 s, in order):
 - Archetype label: Presents as
 - Birthplace label: Suspected place of birth
 - Birthplace confirmed tag: Confirmed by lab
-- Certainty (50% or more): Doctor's certainty {nn}%
-- Certainty (under 50%): A hunch · {nn}% sure
-- Prognosis with no usable answer (taken from the tier): Based on the lab results
 - Prognosis label: Prognosis
-- Every determination card always shows a name, a one-liner and one of the lines above. Never "Inconclusive".
+- Every determination card always shows a name and a one-liner. Certainty is not shown. Never "Inconclusive". A missing prognosis is taken from the tier.
 - Disagreement note: The doctor and the lab disagree.
 - Symptom groups: "Visual symptoms", "Copy symptoms", "Lab results"
+- Symptom rows expand to show the symptom's one-sentence description (`docs/SLOP-TAXONOMY.md` § Descriptions) and where it was found:
+  - Found in {Section} {pct}% · {Section} {pct}% (sections where it scored 35% or more, highest first)
+  - Not found in any section.
+  - Checked across the whole page. (page-level symptoms)
+  - Checked in the page's code and copy. (lab tests)
 - No symptoms: No symptoms found. The doctor is suspicious but impressed.
 - Vital signs heading: Vital signs
 - No vital signs: No signs of human life detected.

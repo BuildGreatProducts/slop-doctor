@@ -16,24 +16,17 @@ const det = (a: string, ac: number, b: string, bc: number, p: string, pc: number
 });
 
 describe("describeDeterminations", () => {
-  test("the production chart that showed three inconclusives now shows three answers as hunches", () => {
+  test("the production chart that showed three inconclusives now shows three answers, without certainty", () => {
     // buildgreatproducts.com, 23 Sep 2026: confidences 0.16, 0.23 and 0.40.
     const r = describeDeterminations(det("linear_lookalike", 0.16, "human_designer", 0.23, "manageable", 0.4), "clean");
-    expect(r.archetype).toEqual({
-      name: "The Linear Lookalike",
-      line: "Moody, precise and suspiciously familiar.",
-      meta: "A hunch · 16% sure",
-    });
-    expect(r.birthplace.name).toBe("A human designer");
-    expect(r.birthplace.meta).toBe("A hunch · 23% sure");
+    expect(r.archetype).toEqual({ name: "The Linear Lookalike", line: "Moody, precise and suspiciously familiar." });
+    expect(r.birthplace).toEqual({ name: "A human designer", line: "Raised by a human designer. Increasingly rare.", meta: undefined });
     expect(r.prognosis.name).toBe("Manageable with treatment");
-    expect(r.prognosis.meta).toBe("A hunch · 40% sure");
-    expect(r.prognosis.note).toBeUndefined(); // a hunch can't disagree with the lab
+    expect(r.prognosis.note).toBeUndefined(); // an unsure prognosis doesn't argue with the lab
   });
 
-  test("confident answers show the doctor's certainty, and a confident mismatch is called out", () => {
+  test("a confident prognosis that doesn't match the tier is called out", () => {
     const r = describeDeterminations(det("saas_clone", 0.81, "lovable", 0.62, "full_recovery", 0.9), "code_purple");
-    expect(r.archetype.meta).toBe("Doctor's certainty 81%");
     expect(r.prognosis.note).toBe("The doctor and the lab disagree.");
   });
 
@@ -46,7 +39,7 @@ describe("describeDeterminations", () => {
     const r = describeDeterminations(det("", 0, "", 0, "", 0), "slopitis");
     expect(r.archetype.name).toBe("A medical mystery");
     expect(r.birthplace.name).toBe("Place of birth unknown");
-    expect(r.prognosis).toMatchObject({ name: "Manageable with treatment", meta: "Based on the lab results" });
+    expect(r.prognosis).toEqual({ name: "Manageable with treatment", line: "A short course of prescriptions should clear it up." });
     expect(describeDeterminations(undefined, "code_purple").prognosis.name).toBe("Terminal");
   });
 

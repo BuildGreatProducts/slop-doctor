@@ -267,6 +267,40 @@ Prescriptions:
 - `inter_itis`: Try a typeface with a pulse. Inter is lovely; so is everyone else's site.
 - `font_fashion`: Your font is on trend. That's the problem.
 
+## Descriptions
+
+One sentence per symptom, shown when a row on the chart is expanded. Plain and specific; the prescription carries the joke.
+
+| Key | About |
+|---|---|
+| `purple_gradient` | A gradient that fades through purple, violet or indigo, the house colour of AI-generated software pages. |
+| `gradient_text` | Headline words filled with a colour gradient instead of one solid colour. |
+| `glow_orbs` | Soft glows, blurred coloured blobs or coloured shadows used purely as decoration. |
+| `glassmorphism` | Translucent frosted-glass panels with a blurred background showing through. |
+| `bento` | Features packed into a grid of rounded tiles of different sizes, like a lunchbox. |
+| `sparkle` | A sparkle or star-burst icon used to announce that something involves AI. |
+| `emoji_icons` | Emoji standing in for icons, bullets or section markers. |
+| `pill_badge` | A small rounded badge above the headline, usually announcing something new. |
+| `centered_hero` | The stock hero: a centred headline, a centred subheading and one or two centred buttons. |
+| `serif_accent` | One italic serif word dropped into an otherwise sans-serif headline. |
+| `logo_wall` | A "trusted by" row of greyed-out logos that look generic or made up. |
+| `icon_tiles` | Feature cards that each open with a thin line icon in a small rounded square. |
+| `triplets` | Three identical cards in a row, whether features, testimonials or pricing tiers. |
+| `accent_border` | Cards or callouts with a coloured stripe down just one edge. |
+| `numbered_steps` | A "1, 2, 3" walkthrough of steps, whether or not the product needs one. |
+| `stat_banner` | A row of big round numbers like "10k+ users" or "99.9% uptime". |
+| `grid_bg` | A faint grid, dot or line pattern sitting behind the hero. |
+| `stock_3d` | Abstract 3D shapes, blobs or gradient artwork standing in for the actual product. |
+| `dark_default` | A near-black page lit up with neon or purple accents: dark mode as a personality. |
+| `vague_value` | A headline that doesn't say what the product does or who it's for. |
+| `rule_of_three` | Slogans in threes, like "Fast. Simple. Powerful.", used more than once. |
+| `not_x_but_y` | The "It's not just X, it's Y" construction, used for emphasis. |
+| `em_dash` | Heavy use of the long em dash in the copy, a favourite habit of AI writing tools. |
+| `buzzwords` | Three or more stock marketing words such as "seamless", "unlock" or "supercharge". |
+| `lorem` | Leftover placeholder text such as "lorem ipsum", "Acme Inc" or "John Doe". |
+| `inter_itis` | The main typeface is Inter or another system default, the most common choice on the web. |
+| `font_fashion` | A currently fashionable typeface, such as Instrument Serif or Space Grotesk. |
+
 ## Lab notes (not symptoms)
 
 **Generator fingerprint.** Confirms the birthplace; weight 0. Evidence is the page's own host, its `<meta name="generator">` tag, or an asset URL in a `src`/`href` attribute. An ordinary link to a builder's website (for example "Built with Bolt") is not evidence. Checked in this order, first match wins:

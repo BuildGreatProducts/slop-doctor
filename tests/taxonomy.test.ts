@@ -23,6 +23,8 @@ describe("taxonomy completeness", () => {
 
   test.each(ALL_SYMPTOMS)("$key has a name, weight and prescription", (s) => {
     expect(s.name.length).toBeGreaterThan(0);
+    expect(s.about).toMatch(/^[A-Z"].+[.]$/); // one plain sentence
+    expect(s.about).not.toContain("\u2014");
     expect(s.weight).toBeGreaterThanOrEqual(1);
     expect(s.weight).toBeLessThanOrEqual(3);
     expect(s.rx.length).toBeGreaterThan(0);

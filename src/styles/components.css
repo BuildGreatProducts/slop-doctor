@@ -114,8 +114,16 @@ ul.list, ol.list { list-style: none; margin: 0; padding: 0; }
 .symptom-bar-fill { display: block; height: 100%; transform-origin: left center; animation: symptom-bar-grow 500ms ease-out both; }
 .symptom-bar-fill.is-low { background: var(--color-success); }
 .symptom-bar-fill.is-mid { background: var(--color-warning); }
-.symptom-bar-fill.is-high { background: var(--color-error); }
+.symptom-bar-fill.is-high { background: var(--color-primary); }
 .symptom-bar-value { min-width: 4ch; text-align: right; font-family: var(--font-mono); font-size: var(--type-label-mono-size); font-weight: var(--type-label-mono-weight); line-height: var(--type-label-mono-lh); letter-spacing: var(--type-label-mono-ls); }
 @keyframes symptom-bar-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .region-box.is-clear { border-color: var(--color-outline); }
+
+/* Score tone for the Slop Index figure and meter: the same thresholds and colours as the symptom bars. */
+.tone-low { color: var(--color-success); }
+.tone-mid { color: var(--color-warning); }
+.tone-high { color: var(--color-primary); }
+.rung.is-filled.tone-low { background: var(--color-success); }
+.rung.is-filled.tone-mid { background: var(--color-warning); }
+.rung.is-filled.tone-high { background: var(--color-primary); }
 @media (prefers-reduced-motion: reduce) { .symptom-bar-fill { animation: none; } }

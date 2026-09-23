@@ -34,6 +34,8 @@ export type SymptomGroup = "visual" | "copy" | "lab";
 export type Symptom = {
   key: string;
   name: string;
+  /** One sentence on what the symptom is, shown when a chart row is expanded. */
+  about: string;
   weight: number;
   group: SymptomGroup;
   source: "lab" | "exam";
@@ -57,6 +59,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "purple_gradient",
     name: "Purple Gradient Fever",
+    about: "A gradient that fades through purple, violet or indigo, the house colour of AI-generated software pages.",
     weight: 3,
     group: "visual",
     source: "exam",
@@ -73,6 +76,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "gradient_text",
     name: "Gradient Text Jaundice",
+    about: "Headline words filled with a colour gradient instead of one solid colour.",
     weight: 2,
     group: "visual",
     source: "exam",
@@ -88,6 +92,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "glow_orbs",
     name: "Aura Glowmatosis",
+    about: "Soft glows, blurred coloured blobs or coloured shadows used purely as decoration.",
     weight: 2,
     group: "visual",
     source: "exam",
@@ -104,6 +109,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "glassmorphism",
     name: "Glassmorphic Cataracts",
+    about: "Translucent frosted-glass panels with a blurred background showing through.",
     weight: 2,
     group: "visual",
     source: "exam",
@@ -119,6 +125,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "bento",
     name: "Bento Box Disorder",
+    about: "Features packed into a grid of rounded tiles of different sizes, like a lunchbox.",
     weight: 2,
     group: "visual",
     source: "exam",
@@ -135,6 +142,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "sparkle",
     name: "Sparkle Infection",
+    about: "A sparkle or star-burst icon used to announce that something involves AI.",
     weight: 1,
     group: "visual",
     source: "exam",
@@ -150,6 +158,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "emoji_icons",
     name: "Emoji Rash",
+    about: "Emoji standing in for icons, bullets or section markers.",
     weight: 1,
     group: "visual",
     source: "exam",
@@ -165,6 +174,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "pill_badge",
     name: "Pill Badge Pox",
+    about: "A small rounded badge above the headline, usually announcing something new.",
     weight: 2,
     group: "visual",
     source: "exam",
@@ -181,6 +191,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "centered_hero",
     name: "Centred Hero Syndrome",
+    about: "The stock hero: a centred headline, a centred subheading and one or two centred buttons.",
     weight: 2,
     group: "visual",
     source: "exam",
@@ -197,6 +208,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "serif_accent",
     name: "Italic Serif Tic",
+    about: "One italic serif word dropped into an otherwise sans-serif headline.",
     weight: 1,
     group: "visual",
     source: "exam",
@@ -213,6 +225,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "logo_wall",
     name: "Phantom Logo Wall",
+    about: "A \"trusted by\" row of greyed-out logos that look generic or made up.",
     weight: 1,
     group: "visual",
     source: "exam",
@@ -229,6 +242,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "icon_tiles",
     name: "Icon Tile Uniformity",
+    about: "Feature cards that each open with a thin line icon in a small rounded square.",
     weight: 2,
     group: "visual",
     source: "exam",
@@ -245,6 +259,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "triplets",
     name: "Triplet Syndrome",
+    about: "Three identical cards in a row, whether features, testimonials or pricing tiers.",
     weight: 2,
     group: "visual",
     source: "exam",
@@ -261,6 +276,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "accent_border",
     name: "Left-Border Palsy",
+    about: "Cards or callouts with a coloured stripe down just one edge.",
     weight: 1,
     group: "visual",
     source: "exam",
@@ -276,6 +292,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "numbered_steps",
     name: "One-Two-Three Compulsion",
+    about: "A \"1, 2, 3\" walkthrough of steps, whether or not the product needs one.",
     weight: 1,
     group: "visual",
     source: "exam",
@@ -291,6 +308,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "stat_banner",
     name: "Vanity Stat Rash",
+    about: "A row of big round numbers like \"10k+ users\" or \"99.9% uptime\".",
     weight: 1,
     group: "visual",
     source: "exam",
@@ -307,6 +325,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "grid_bg",
     name: "Graph Paper Lattice",
+    about: "A faint grid, dot or line pattern sitting behind the hero.",
     weight: 1,
     group: "visual",
     source: "exam",
@@ -322,6 +341,7 @@ export const VISUAL_SYMPTOMS: Symptom[] = [
   {
     key: "stock_3d",
     name: "Abstract Blob Implants",
+    about: "Abstract 3D shapes, blobs or gradient artwork standing in for the actual product.",
     weight: 1,
     group: "visual",
     source: "exam",
@@ -341,6 +361,7 @@ export const PAGE_SYMPTOMS: Symptom[] = [
   {
     key: "dark_default",
     name: "Midnight Pallor",
+    about: "A near-black page lit up with neon or purple accents: dark mode as a personality.",
     weight: 2,
     group: "visual",
     source: "exam",
@@ -356,6 +377,7 @@ export const PAGE_SYMPTOMS: Symptom[] = [
   {
     key: "vague_value",
     name: "Vague Value Prop",
+    about: "A headline that doesn't say what the product does or who it's for.",
     weight: 2,
     group: "copy",
     source: "exam",
@@ -371,6 +393,7 @@ export const PAGE_SYMPTOMS: Symptom[] = [
   {
     key: "rule_of_three",
     name: "Tricolon Tic",
+    about: "Slogans in threes, like \"Fast. Simple. Powerful.\", used more than once.",
     weight: 1,
     group: "copy",
     source: "exam",
@@ -385,6 +408,7 @@ export const PAGE_SYMPTOMS: Symptom[] = [
   {
     key: "not_x_but_y",
     name: "Contrast Reflex",
+    about: "The \"It's not just X, it's Y\" construction, used for emphasis.",
     weight: 1,
     group: "copy",
     source: "exam",
@@ -402,6 +426,7 @@ export const LAB_SYMPTOMS: Symptom[] = [
   {
     key: "em_dash",
     name: "Em-Dash Haemorrhage",
+    about: "Heavy use of the long em dash in the copy, a favourite habit of AI writing tools.",
     weight: 1,
     group: "copy",
     source: "lab",
@@ -411,6 +436,7 @@ export const LAB_SYMPTOMS: Symptom[] = [
   {
     key: "buzzwords",
     name: "Buzzword Bloat",
+    about: "Three or more stock marketing words such as \"seamless\", \"unlock\" or \"supercharge\".",
     weight: 2,
     group: "copy",
     source: "lab",
@@ -420,6 +446,7 @@ export const LAB_SYMPTOMS: Symptom[] = [
   {
     key: "lorem",
     name: "Placeholder Residue",
+    about: "Leftover placeholder text such as \"lorem ipsum\", \"Acme Inc\" or \"John Doe\".",
     weight: 3,
     group: "copy",
     source: "lab",
@@ -429,6 +456,7 @@ export const LAB_SYMPTOMS: Symptom[] = [
   {
     key: "inter_itis",
     name: "Inter-itis",
+    about: "The main typeface is Inter or another system default, the most common choice on the web.",
     weight: 2,
     group: "lab",
     source: "lab",
@@ -438,6 +466,7 @@ export const LAB_SYMPTOMS: Symptom[] = [
   {
     key: "font_fashion",
     name: "Fashionable Font Fever",
+    about: "A currently fashionable typeface, such as Instrument Serif or Space Grotesk.",
     weight: 1,
     group: "lab",
     source: "lab",

@@ -47,3 +47,14 @@ test("the footer links to the privacy and terms pages", async ({ page }) => {
   await page.getByRole("navigation", { name: "Footer" }).getByRole("link", { name: "Terms" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Terms" })).toBeVisible();
 });
+
+test("a chart symptom expands to explain itself", async ({ page }) => {
+  const id = process.env.E2E_CHART_ID;
+  test.skip(!id, "Set E2E_CHART_ID to a completed scan (pnpm seed:fixture prints one)");
+  await page.goto(`/chart/${id}`);
+  const first = page.locator("details").first();
+  await expect(first).not.toHaveAttribute("open");
+  await first.locator("summary").click();
+  await expect(first).toHaveAttribute("open");
+  await expect(first.getByText(/^(Found in|Not found|Checked)/)).toBeVisible();
+});

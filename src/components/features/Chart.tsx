@@ -1,9 +1,9 @@
 "use client";
 
 import { SYMPTOMS_BY_KEY, type SymptomGroup, type TierKey } from "../../../convex/lib/taxonomy";
-import { chart, regionKindLabels, tiers } from "@/lib/copy";
+import { chart, regionKindLabels, scanner, tiers } from "@/lib/copy";
 import { type Determination, describeDeterminations } from "@/lib/determinations";
-import { findingName } from "@/lib/findings";
+import { barTone, findingName } from "@/lib/findings";
 import type { Finding, PublicScan } from "@/lib/types";
 import styles from "./Chart.module.css";
 import { DoctorsNote } from "./DoctorsNote";
@@ -22,24 +22,70 @@ type Props = {
   onExamineAnother: () => void;
 };
 
-type Row = { key: string; name: string; p: number; where: string[]; weight: number };
+type Row = {
+  key: string;
+  name: string;
+  about: string;
+  p: number;
+  weight: number;
+  scope: "region" | "page" | "lab";
+  /** Sections where it scored 35% or more, highest first. */
+  foundIn: { label: string; p: number }[];
+};
 
 /** Every symptom checked, one row each at its highest score across the page, highest first. */
 function groupRows(findings: Finding[], regionKinds: Map<string, string>): Record<SymptomGroup, Row[]> {
   const rows = new Map<string, Row>();
   for (const f of findings) {
     if (f.kind !== "symptom") continue;
-    const row = rows.get(f.key) ?? { key: f.key, name: findingName(f.key), p: 0, where: [], weight: f.weight };
+    const symptom = SYMPTOMS_BY_KEY[f.key];
+    const row = rows.get(f.key) ?? {
+      key: f.key,
+      name: findingName(f.key),
+      about: symptom?.about ?? "",
+      p: 0,
+      weight: f.weight,
+      scope: symptom?.scope ?? "region",
+      foundIn: [],
+    };
     row.p = Math.max(row.p, f.probability);
     const kind = f.regionId ? regionKinds.get(f.regionId) : undefined;
-    const label = kind ? (regionKindLabels[kind] ?? kind) : undefined;
-    if (label && f.band !== "absent" && !row.where.includes(label)) row.where.push(label);
+    if (kind && f.band !== "absent") row.foundIn.push({ label: regionKindLabels[kind] ?? kind, p: f.probability });
     rows.set(f.key, row);
   }
   const groups: Record<SymptomGroup, Row[]> = { visual: [], copy: [], lab: [] };
-  for (const row of rows.values()) groups[SYMPTOMS_BY_KEY[row.key]?.group ?? "visual"].push(row);
+  for (const row of rows.values()) {
+    row.foundIn.sort((a, b) => b.p - a.p);
+    groups[SYMPTOMS_BY_KEY[row.key]?.group ?? "visual"].push(row);
+  }
   for (const g of Object.values(groups)) g.sort((a, b) => b.p - a.p || b.weight - a.weight);
   return groups;
+}
+
+function whereText(row: Row): string {
+  if (row.scope === "lab") return chart.checkedCode;
+  if (row.scope === "page") return chart.checkedWholePage;
+  if (row.foundIn.length === 0) return chart.notFoundInSections;
+  return chart.foundIn(row.foundIn.map((f) => `${f.label} ${scanner.percent(f.p)}`).join(" · "));
+}
+
+/** One symptom: the summary shows its score; expanding it says what the symptom is and where it was found. */
+function SymptomRow({ row }: { row: Row }) {
+  return (
+    <li className={styles.item}>
+      <details className={styles.symptom}>
+        <summary className={styles.summary}>
+          <span className="t-label-md">{row.name}</span>
+          <SymptomBar p={row.p} />
+          <span className={styles.toggle} aria-hidden />
+        </summary>
+        <div className={styles.panel}>
+          <p className="t-body-sm">{row.about}</p>
+          <p className="mono muted">{whereText(row)}</p>
+        </div>
+      </details>
+    </li>
+  );
 }
 
 function DeterminationCard({ label, value }: { label: string; value: Determination }) {
@@ -74,7 +120,7 @@ export function Chart({ scan, findings, cached, fallbackLink, onCopyLink, onSeco
         </div>
         <div className={styles.index}>
           <span className="mono muted">{chart.indexLabel}</span>
-          <span className={styles.figure}>{scan.slopIndex ?? 0}</span>
+          <span className={`${styles.figure} tone-${barTone((scan.slopIndex ?? 0) / 100)}`}>{scan.slopIndex ?? 0}</span>
           <SlopOMeter index={scan.slopIndex ?? 0} />
         </div>
       </header>
@@ -100,11 +146,7 @@ export function Chart({ scan, findings, cached, fallbackLink, onCopyLink, onSeco
                 </h2>
                 <ul className="list">
                   {groups[g].map((row) => (
-                    <li key={row.key} className={`list-item ${styles.row}`}>
-                      <span className="t-label-md">{row.name}</span>
-                      <span className="mono muted">{row.where.join(" · ")}</span>
-                      <SymptomBar p={row.p} />
-                    </li>
+                    <SymptomRow key={row.key} row={row} />
                   ))}
                 </ul>
               </section>
