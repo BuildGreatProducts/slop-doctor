@@ -117,7 +117,7 @@ Rotating quips while waiting (every 4 s, in order):
 - Birthplace label: Suspected place of birth
 - Birthplace confirmed tag: Confirmed by lab
 - Prognosis label: Prognosis
-- Each determination card shows a face on the right: happy (accessible name "Good sign"), meh ("Could be worse") or sad ("Bad sign"). Happy: The Actually Designed, A human designer, Full recovery. Meh: The Linear Lookalike, The Stripe Tribute Act, The Notion Wannabe, Framer, Webflow template, Website builder theme, Manageable with treatment, and any unknown answer. Sad: everything else.
+- Each determination card shows a face on the right: a square happy face (accessible name "Good sign"), a round meh face ("Could be worse") or a hexagonal sad face ("Bad sign"). Happy: The Actually Designed, A human designer, Full recovery. Meh: The Linear Lookalike, The Stripe Tribute Act, The Notion Wannabe, Framer, Webflow template, Website builder theme, Manageable with treatment, and any unknown answer. Sad: everything else.
 - Every determination card always shows a name and a one-liner. Certainty is not shown. Never "Inconclusive". A missing prognosis is taken from the tier.
 - Disagreement note: The doctor and the lab disagree.
 - Symptom groups: "Visual symptoms", "Copy symptoms", "Lab results"
