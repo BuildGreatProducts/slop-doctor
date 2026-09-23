@@ -57,6 +57,15 @@ Rules of thumb:
 - Signed out: button "Sign in"
 - Signed in: button "Sign out"
 
+### Footer (every page)
+- Line (mono): Slop Doctor · Not a real doctor
+- Links: "Privacy", "Terms"
+
+### Legal pages (`/privacy`, `/terms`)
+- Eyebrow (mono): Slop Doctor · Last updated {date}
+- Plain English, second person, short paragraphs. The lexicon still applies (examination, chart, symptom), but no jokes in anything that states a right, a limit or an obligation. One dry line is allowed in a heading ("The doctor is not a real doctor").
+- The operator name and contact address live in `src/lib/copy.ts` (`legal`), so they change in one place.
+
 ### Intake (home)
 - Eyebrow (mono): Now seeing patients
 - Headline: The doctor can see you now

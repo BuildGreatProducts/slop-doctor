@@ -38,3 +38,12 @@ test("an unknown chart shows not found", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "We can't find that chart" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Examine another patient" })).toBeVisible();
 });
+
+test("the footer links to the privacy and terms pages", async ({ page }) => {
+  await page.goto("/");
+  const footer = page.getByRole("navigation", { name: "Footer" });
+  await footer.getByRole("link", { name: "Privacy" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Privacy" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Footer" }).getByRole("link", { name: "Terms" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Terms" })).toBeVisible();
+});

@@ -1,5 +1,6 @@
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import type { Metadata } from "next";
+import { Footer } from "@/components/features/Footer";
 import { Header } from "@/components/features/Header";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { geistMono, switzer } from "./fonts";
@@ -18,10 +19,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <ConvexAuthNextjsServerProvider>
       <html lang="en" className={`${switzer.variable} ${geistMono.variable}`}>
-        <body>
+        <body className="app">
           <ConvexClientProvider>
             <Header />
-            {children}
+            <div className="page">{children}</div>
+            <Footer />
           </ConvexClientProvider>
         </body>
       </html>

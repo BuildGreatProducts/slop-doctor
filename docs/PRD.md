@@ -849,6 +849,12 @@ Key Interactions:
 
 Components Used: panel-grid, card, list-item, chip, note (DoctorsNote), rung, button-primary (Copy discharge papers), button-secondary (Get a second opinion), button-ghost (Examine another patient), toast.
 
+### Screen: Privacy and Terms
+Route: `/privacy`, `/terms`
+Purpose: Say plainly what data Slop Doctor handles and the rules of use. Google's OAuth consent screen links to both.
+Layout: `LegalDoc`: a mono eyebrow with the last-updated date, `headline-lg` title, and prose on the 720px measure styled by `.legal`.
+Components Used: none beyond type styles; the footer on every page links to both.
+
 ### Modal/dialog flows
 None. Sign-in is inline.
 

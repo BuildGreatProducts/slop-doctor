@@ -6,6 +6,20 @@ export const header = {
   signOut: "Sign out",
 };
 
+export const footer = {
+  line: "Slop Doctor · Not a real doctor",
+  privacy: "Privacy",
+  terms: "Terms",
+  navLabel: "Footer",
+};
+
+export const legal = {
+  updated: "23 September 2026",
+  eyebrow: (updated: string) => `Slop Doctor · Last updated ${updated}`,
+  operator: "Chris Ashby",
+  contact: "chris@telescope.design",
+};
+
 export const intake = {
   eyebrow: "Now seeing patients",
   headline: "The doctor can see you now",
