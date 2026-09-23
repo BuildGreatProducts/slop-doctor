@@ -26,7 +26,7 @@ Rules of thumb:
 | patient | the website being examined | site, target, URL (except in the field label) |
 | examination | one run of the pipeline | scan, analysis, audit, test |
 | examine | start an examination | scan, analyse, check |
-| chart | the results page | report, results, scorecard |
+| chart | the results page | results, scorecard ("slop report" only in the landing page's call to action) |
 | symptom | a detected slop pattern | issue, problem, finding, error |
 | diagnosis | the tier name | verdict, grade, rating |
 | Slop Index | the 0–100 score | score, slop score, rating |
@@ -69,14 +69,17 @@ Rules of thumb:
 ### Intake (home)
 - Eyebrow (mono): Now seeing patients
 - Headline: The doctor can see you now
-- Subhead: Paste a landing page and the doctor will check it for AI slop: purple gradients, pill badges, buzzwords and the rest.
+- Subhead: Paste your website and the doctor will check it for AI slop: purple gradients, pill badges, buzzwords and the rest.
 - Field label: Patient's URL
 - Field placeholder: yoursite.com
 - Field help: We photograph the page and examine the design. It takes about 30 seconds.
-- Primary button (signed in): Start examination
-- Primary button (signed out): Sign in to see the doctor
-- Sign-in choice: "Continue with Google"
-- Sign-in note: Signing in keeps the clinic open. You get 10 examinations a day.
+- Primary button: Get my slop report (signed in or out)
+- Sign-in popup (opens when a signed-out visitor submits a valid URL, or presses "Sign in" in the header):
+  - Title: Sign in to get your slop report
+  - Note: Signing in keeps the clinic open. You get 10 examinations a day.
+  - Buttons: "Continue with Google", "Close"
+- Example (under the field): label (mono) "Example report"; caption "Every examination ends with a chart like this one, ready to share."; image alt "An example slop chart for synergize.example.com: Slop Index 98, diagnosis Code Purple"
+- "Slop report" is the founder's wording for the landing page's call to action (23 Sep 2026). Everywhere else the result is still a chart.
 - Records heading: Your patient records
 - Records empty: No patients yet. Your charts will appear here.
 - Record row: {host} · Slop Index {n} · {relative time}

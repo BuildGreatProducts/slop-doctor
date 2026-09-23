@@ -493,12 +493,12 @@ The persona is **the Vibe Builder**: someone who shipped a landing page with an 
 
 ### Epic: Access
 
-**US-001: Sign in to see the doctor**
+**US-001: Sign in to get my slop report**
 As the Vibe Builder, I want to sign in with Google so that I can start an examination.
 
 Acceptance Criteria:
-- [ ] Given I'm signed out, when I press "Sign in to see the doctor", then I see "Continue with Google".
-- [ ] Given I finish OAuth, when I return to `/`, then the primary button reads "Start examination" and my URL input is preserved.
+- [ ] Given I'm signed out and have typed a URL, when I press "Get my slop report", then a popup asks me to "Sign in to get your slop report" with "Continue with Google".
+- [ ] Given I finish Google sign-in, when I return to `/`, then the examination of the URL I typed starts on its own.
 - [ ] Edge case: OAuth cancelled → back on `/` signed out, with no error banner.
 
 ### Epic: Examination
@@ -559,7 +559,7 @@ Acceptance Criteria:
 
 **FR-001: OAuth sign-in**
 Priority: P0
-Description: Convex Auth with the Google provider only. Header shows "Sign in"/"Sign out". The signed-out primary action opens `SignInPanel` inline under the URL field (no separate route).
+Description: Convex Auth with the Google provider only. Header shows "Sign in"/"Sign out". Signing in happens in a popup (`SignInDialog`), opened by "Get my slop report" when signed out or by the header's "Sign in"; after Google, the typed URL is examined automatically (`start=1`).
 Acceptance Criteria:
 - Google sign-in completes a round trip in dev.
 - `useConvexAuth().isAuthenticated` drives the button label.
@@ -811,9 +811,9 @@ Visual styling comes from `docs/DESIGN.md`, including § Slop Doctor mapping. Co
 Route: `/` (no active scan)
 Purpose: Explain the joke in one line and start an examination.
 Layout:
-- `Header` (wordmark left, sign in/out right)
+- `Header` (logo mark and wordmark left, sign in/out right)
 - a `panel-grid` header band with the eyebrow, `display-lg` headline and subhead
-- `UrlIntakeForm` (field + primary button) spanning 8 columns
+- `UrlIntakeForm` (field + "Get my slop report") on the 720px measure, then `ExampleReport`: the share card of a made-up sloppy patient, served statically from `/example-chart.png`
 - `PencilDoctor` illustration in the right margin (desktop only)
 - `PatientRecords` below (signed in)
 
@@ -825,7 +825,7 @@ States:
 
 Key Interactions:
 - Type URL → client-side `validateUrl` on blur/submit → inline error or submit.
-- Submit signed out → `SignInPanel` expands inline with two `button-secondary` provider buttons.
+- Submit signed out (valid URL) → the sign-in popup opens ("Sign in to get your slop report", "Continue with Google"). Google redirects back to `/?url={url}&start=1`, and the examination starts as soon as the visitor is signed in.
 - Submit signed in → `scans.create` → set `activeScanId` → examination view.
 
 Components Used: button-primary, button-secondary, input-field, panel-grid, list-item, chip, note (sign-in note uses `body-sm`, not `note`).

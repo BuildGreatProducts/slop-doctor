@@ -3,11 +3,14 @@
 import { useConvexAuth } from "convex/react";
 import { intake } from "@/lib/copy";
 import styles from "./Intake.module.css";
+import { ExampleReport } from "./ExampleReport";
 import { PatientRecords } from "./PatientRecords";
 import { PencilDoctor } from "./PencilDoctor";
 import { UrlIntakeForm } from "./UrlIntakeForm";
 
-export function Intake({ initialUrl, openSignIn }: { initialUrl: string; openSignIn: boolean }) {
+type Props = { initialUrl: string; openSignIn: boolean; autoStart: boolean };
+
+export function Intake({ initialUrl, openSignIn, autoStart }: Props) {
   const { isAuthenticated } = useConvexAuth();
   return (
     <div className={`frame ${styles.page}`}>
@@ -23,8 +26,9 @@ export function Intake({ initialUrl, openSignIn }: { initialUrl: string; openSig
       </section>
       {/* The paper grid never sits behind a form (docs/DESIGN.md § Layout & Spacing). */}
       <div className={styles.formArea}>
-        <UrlIntakeForm initialUrl={initialUrl} openSignIn={openSignIn} />
+        <UrlIntakeForm initialUrl={initialUrl} openSignIn={openSignIn} autoStart={autoStart} />
       </div>
+      <ExampleReport />
       {isAuthenticated && <PatientRecords />}
     </div>
   );

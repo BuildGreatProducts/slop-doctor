@@ -1,24 +1,39 @@
 import { expect, test } from "@playwright/test";
 
-test("intake renders and a signed-out submit opens sign-in", async ({ page }) => {
+test("intake renders and a signed-out submit opens the sign-in popup", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("The doctor can see you now");
   await page.getByLabel("Patient's URL").fill("example.com");
-  await page.getByRole("button", { name: "Sign in to see the doctor" }).click();
+  await page.getByRole("button", { name: "Get my slop report" }).click();
+  const dialog = page.getByRole("dialog", { name: "Sign in to get your slop report" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue with GitHub" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(page.getByLabel("Patient's URL")).toHaveValue("example.com");
 });
 
-test("invalid and private URLs show inline errors", async ({ page }) => {
+test("the landing page shows an example report", async ({ page, request }) => {
+  await page.goto("/");
+  const example = page.getByRole("img", { name: /An example slop chart/ });
+  await expect(example).toBeVisible();
+  await expect(example).toHaveJSProperty("naturalWidth", 1200);
+  const image = await request.get("/example-chart.png");
+  expect(image.headers()["content-type"]).toBe("image/png");
+});
+
+test("invalid and private URLs show inline errors instead of the popup", async ({ page }) => {
   await page.goto("/");
   const field = page.getByLabel("Patient's URL");
-  const submit = page.getByRole("button", { name: "Sign in to see the doctor" });
+  const submit = page.getByRole("button", { name: "Get my slop report" });
   await field.fill("ftp://example.com");
   await submit.click();
   await expect(page.getByText("That doesn't look like a web address.")).toBeVisible();
   await field.fill("localhost:3000");
   await submit.click();
   await expect(page.getByText("The doctor only makes house calls to public websites.")).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
 test("a completed chart renders for a signed-out visitor", async ({ page }) => {

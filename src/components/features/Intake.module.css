@@ -11,8 +11,9 @@
 .inputRow { display: flex; gap: var(--space-sm); }
 .inputRow :global(.input) { flex: 1; min-width: 0; }
 
-.signIn { display: flex; flex-direction: column; gap: var(--space-sm); }
-.providers { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+.example { max-width: 720px; display: flex; flex-direction: column; gap: var(--space-sm); margin: 0; }
+.exampleFrame { border: 1px solid var(--color-outline-variant); border-radius: var(--rounded-md); overflow: hidden; background: var(--color-surface); }
+.exampleImage { display: block; width: 100%; height: auto; }
 
 .records { max-width: 720px; }
 .record { grid-template-columns: 1fr auto auto; gap: var(--space-md); }
