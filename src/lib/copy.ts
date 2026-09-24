@@ -124,7 +124,7 @@ export const chart = {
 };
 
 export const share = {
-  button: "Share discharge papers",
+  button: "Share report",
   title: "Share your slop chart",
   imageAlt: (host: string) => `Slop chart for ${host}`,
   imageLoading: "Printing your chart…",

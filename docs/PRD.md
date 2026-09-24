@@ -740,7 +740,7 @@ Related Stories: US-005
 Priority: P1
 Description:
 - `src/app/chart/[id]/opengraph-image.tsx` renders a 1200×630 PNG with `next/og` for every chart: host, diagnosis with tick or cross, one-liner, Slop Index figure and meter in its colour, the top three symptoms with bars (visual symptoms first), and the three determinations with their faces. Unfinished or missing charts get a brand card, cached for 60 seconds; finished charts are cached as immutable. It is the chart page's `og:image` and `twitter:image` (`metadataBase` is `https://www.slopdoctor.app` in production).
-- "Share discharge papers" on the chart opens a native `<dialog>` with the image and: "Post on X" (`x.com/intent/post` with the text and link), "Share on LinkedIn" (`linkedin.com/sharing/share-offsite` with the link), "Copy link" (button reads "Link copied" for 2 s; a selectable link appears if the clipboard is blocked) and "Download image" (`slop-chart-{host}.png`).
+- "Share report" on the chart opens a native `<dialog>` with the image and: "Post on X" (`x.com/intent/post` with the text and link), "Share on LinkedIn" (`linkedin.com/sharing/share-offsite` with the link), "Copy link" (button reads "Link copied" for 2 s; a selectable link appears if the clipboard is blocked) and "Download image" (`slop-chart-{host}.png`).
 - Share text: "Dr. Slop diagnosed {host} with {tier} (Slop Index {n}). Get your landing page examined:"
 - Fonts for the image are TTF copies in `assets/fonts/` (Satori can't read WOFF2); colours come from `src/lib/tokens.ts`, which a test keeps in sync with `tokens.css`.
 Acceptance Criteria: the image renders for sloppy, clean and missing charts; the popup's links are prefilled; it works on mobile; Escape closes it.
@@ -870,12 +870,12 @@ States:
 - **Error:** `not_found` for bad ids.
 
 Key Interactions:
-- "Copy discharge papers" → clipboard → `toast`.
+- "Share report" → share popup (FR-021).
 - "Treat with your agent" → treat popup (FR-023).
 - "Get a second opinion" → FR-017 (requires sign-in; signed out → `SignInPanel`).
 - "Examine another patient" → back to intake.
 
-Components Used: panel-grid, card, list-item, chip, note (DoctorsNote), rung, button-primary (Copy discharge papers), button-secondary (Treat with your agent), button-ghost (Get a second opinion, Examine another patient), toast.
+Components Used: panel-grid, card, list-item, chip, note (DoctorsNote), rung, button-primary (Share report), button-secondary (Treat with your agent), button-ghost (Get a second opinion, Examine another patient), toast.
 
 ### Screen: Privacy and Terms
 Route: `/privacy`, `/terms`

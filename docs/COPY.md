@@ -26,7 +26,7 @@ Rules of thumb:
 | patient | the website being examined | site, target, URL (except in the field label) |
 | examination | one run of the pipeline | scan, analysis, audit, test |
 | examine | start an examination | scan, analyse, check |
-| chart | the results page | results, scorecard ("slop report" only in the landing page's call to action) |
+| chart | the results page | results, scorecard ("slop report" only in the landing page's call to action; "report" only on the chart's "Share report" button, so how to share is plain) |
 | symptom | a detected slop pattern | issue, problem, finding, error |
 | diagnosis | the tier name | verdict, grade, rating |
 | Slop Index | the 0–100 score | score, slop score, rating |
@@ -134,7 +134,7 @@ Rotating quips while waiting (every 4 s, in order):
 - No vital signs: No signs of human life detected.
 - Prescription heading: Doctor's note
 - Prescription signature: Dr. Slop · Prescription {nn}
-- Buttons: "Share discharge papers", "Treat with your agent" (only when the chart has symptoms), "Get a second opinion", "Examine another patient"
+- Buttons: "Share report", "Treat with your agent" (only when the chart has symptoms), "Get a second opinion", "Examine another patient"
 - Share popup title: Share your slop chart
 - Share popup buttons: "Post on X", "Share on LinkedIn", "Copy link" (reads "Link copied" for 2 seconds), "Download image", "Close"
 - Share popup image loading: Printing your chart…
