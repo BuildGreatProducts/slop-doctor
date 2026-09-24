@@ -8,6 +8,8 @@ import { api } from "../../../convex/_generated/api";
 import { computeSlopIndex } from "../../../convex/lib/scoring";
 import { chart, type ErrorKey, type StageKey, tiers } from "@/lib/copy";
 import { errorMessage } from "@/lib/errors";
+import { chartUrl } from "@/lib/share";
+import { treatmentPrompt } from "@/lib/treat";
 import type { Finding, PublicScan } from "@/lib/types";
 import { usePrefersReducedMotion, useRevealQueue } from "@/lib/useRevealQueue";
 import { Chart } from "./Chart";
@@ -19,6 +21,7 @@ import { Scanner } from "./Scanner";
 import { ShareDialog } from "./ShareDialog";
 import { SlopOMeter } from "./SlopOMeter";
 import { Toast } from "./Toast";
+import { TreatDialog } from "./TreatDialog";
 import { WaitingRoom } from "./WaitingRoom";
 
 const CHART_BEAT_MS = 1200;
@@ -48,6 +51,8 @@ export function ChartView({ scanId, cached }: { scanId: string; cached?: boolean
   const [toast, setToast] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
   const closeShare = useCallback(() => setSharing(false), []);
+  const [treating, setTreating] = useState(false);
+  const closeTreat = useCallback(() => setTreating(false), []);
   const clearToast = useCallback(() => setToast(null), []);
   const examineAnother = () => router.push("/");
 
@@ -102,6 +107,7 @@ export function ChartView({ scanId, cached }: { scanId: string; cached?: boolean
           findings={findings}
           cached={cached}
           onShare={() => setSharing(true)}
+          onTreat={() => setTreating(true)}
           onSecondOpinion={secondOpinion}
           onExamineAnother={examineAnother}
         />
@@ -116,6 +122,16 @@ export function ChartView({ scanId, cached }: { scanId: string; cached?: boolean
           host={scan.host}
           tierName={tiers[scan.tier].name}
           index={scan.slopIndex ?? 0}
+        />
+      )}
+      {scan.status === "complete" && findings && (
+        <TreatDialog
+          open={treating}
+          onClose={closeTreat}
+          host={scan.host}
+          prompt={
+            treating ? treatmentPrompt({ scan, findings, chartUrl: chartUrl(window.location.origin, scanId) }) : ""
+          }
         />
       )}
       <Toast message={toast} onDone={clearToast} />

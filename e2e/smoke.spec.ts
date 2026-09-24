@@ -93,6 +93,24 @@ test("the share popup shows the chart image and prefilled share links", async ({
   await expect(dialog).toBeHidden();
 });
 
+test("the treat popup opens each agent with the prompt filled in", async ({ page }) => {
+  const id = process.env.E2E_CHART_ID;
+  test.skip(!id, "Set E2E_CHART_ID to a completed scan (pnpm seed:fixture prints one)");
+  await page.goto(`/chart/${id}`);
+  await page.getByRole("button", { name: "Treat with your agent" }).click();
+  const dialog = page.getByRole("dialog", { name: /^Treat .+ with your agent$/ });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByLabel("Prompt for your agent")).toContainText("Dr. Slop examined");
+  await expect(dialog.getByRole("link", { name: "Open Claude" })).toHaveAttribute("href", /^claude:\/\/code\/new\?q=Dr\.%20Slop/);
+  await expect(dialog.getByRole("link", { name: "Open Codex" })).toHaveAttribute("href", /^codex:\/\/new\?prompt=Dr\.%20Slop/);
+  await expect(dialog.getByRole("link", { name: "Open Cursor" })).toHaveAttribute(
+    "href",
+    /^https:\/\/cursor\.com\/link\/prompt\?text=Dr\.%20Slop/,
+  );
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+});
+
 test("every chart ends with the AI Product Academy referral", async ({ page }) => {
   const id = process.env.E2E_CHART_ID;
   test.skip(!id, "Set E2E_CHART_ID to a completed scan (pnpm seed:fixture prints one)");

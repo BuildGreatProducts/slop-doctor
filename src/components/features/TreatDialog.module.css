@@ -1,0 +1,10 @@
+/* Treat popup: the system dialog at the share popup's width, with the prompt in a code block. Specs: docs/DESIGN.md § Components (dialog). */
+.dialog { width: min(760px, calc(100% - 2 * var(--space-md))); max-height: calc(100% - 2 * var(--space-md)); margin: auto; overflow-y: auto; }
+.dialog::backdrop { background: rgba(20, 20, 20, 0.4); }
+.body { display: flex; flex-direction: column; gap: var(--space-lg); }
+.header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
+.header h2 { min-width: 0; overflow-wrap: anywhere; }
+.body p { margin: 0; }
+.prompt { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 12lh; overflow-y: auto; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+@media (max-width: 600px) { .actions > * { flex: 1 1 100%; } }

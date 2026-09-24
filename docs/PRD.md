@@ -752,6 +752,15 @@ Description: Every chart ends with a full-width paper-grid band referring the vi
 Acceptance Criteria: the band appears at the bottom of every finished chart, at full frame width, on desktop and mobile.
 Related Stories: US-004
 
+**FR-023: Treat with your agent**
+Priority: P1
+Description:
+- "Treat with your agent" on a chart with symptoms opens a native `<dialog>` holding a prompt for a coding agent, plus links that open it pre-filled and unsent: "Open Claude" (`claude://code/new?q=`, the Claude app's Code tab), "Open Codex" (`codex://new?prompt=`) and "Open Cursor" (`https://cursor.com/link/prompt?text=`, new tab). "Copy prompt" covers every other agent.
+- The prompt (`src/lib/treat.ts`) lists every present symptom by weight × p, the prescription order: its name, score and where it was found, its `about`, its `whenFalse` as "Healthy when", and its Rx. It tells the agent to find each symptom in the code, show a plan and wait for a go-ahead, and to ask for the codebase if it isn't in it. It stops before its encoded length would push Cursor's link past 10,000 characters (about 6,500 characters of prompt; Claude's app truncates at about 14,000), and ends by counting the milder symptoms left for another round.
+- Only the doctor's own words go in: taxonomy text, section labels, numbers, the display URL and the chart link. Page text (`pageTitle`, region descriptions, visible text) never does, because charts are public and a page could otherwise plant instructions in a visitor's agent.
+Acceptance Criteria: each link opens its agent with the prompt filled in and not sent; Cursor's link stays under 10,000 characters for a page with every symptom; it works on mobile; Escape closes it.
+Related Stories: US-004
+
 **FR-017: Second opinion**
 Priority: P1
 Description: "Get a second opinion" calls `scans.rescan({ scanId })`, which reads the stored URL server-side, skips the cache and is still rate limited. The client never sends the fetch URL back.
@@ -862,10 +871,11 @@ States:
 
 Key Interactions:
 - "Copy discharge papers" → clipboard → `toast`.
+- "Treat with your agent" → treat popup (FR-023).
 - "Get a second opinion" → FR-017 (requires sign-in; signed out → `SignInPanel`).
 - "Examine another patient" → back to intake.
 
-Components Used: panel-grid, card, list-item, chip, note (DoctorsNote), rung, button-primary (Copy discharge papers), button-secondary (Get a second opinion), button-ghost (Examine another patient), toast.
+Components Used: panel-grid, card, list-item, chip, note (DoctorsNote), rung, button-primary (Copy discharge papers), button-secondary (Treat with your agent), button-ghost (Get a second opinion, Examine another patient), toast.
 
 ### Screen: Privacy and Terms
 Route: `/privacy`, `/terms`
@@ -874,7 +884,7 @@ Layout: `LegalDoc`: a mono eyebrow with the last-updated date, `headline-lg` tit
 Components Used: none beyond type styles; the footer on every page links to both.
 
 ### Modal/dialog flows
-None. Sign-in is inline.
+Three native `<dialog>` popups: sign-in (landing page), share (FR-021) and treat with your agent (FR-023).
 
 ## 9. Auth Implementation
 

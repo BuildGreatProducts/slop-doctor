@@ -134,13 +134,18 @@ Rotating quips while waiting (every 4 s, in order):
 - No vital signs: No signs of human life detected.
 - Prescription heading: Doctor's note
 - Prescription signature: Dr. Slop · Prescription {nn}
-- Buttons: "Share discharge papers", "Get a second opinion", "Examine another patient"
+- Buttons: "Share discharge papers", "Treat with your agent" (only when the chart has symptoms), "Get a second opinion", "Examine another patient"
 - Share popup title: Share your slop chart
 - Share popup buttons: "Post on X", "Share on LinkedIn", "Copy link" (reads "Link copied" for 2 seconds), "Download image", "Close"
 - Share popup image loading: Printing your chart…
 - Share popup clipboard fallback: Copy the link above
 - Share text (X): Dr. Slop diagnosed {host} with {tier} (Slop Index {n}). Get your landing page examined:
 - Share image fallback (chart missing or unfinished): eyebrow "Now seeing patients", headline "The doctor can see you now"
+- Treat popup title: Treat {host} with your agent
+- Treat popup intro: Your agent opens with this prompt filled in. Read it, then press send.
+- Treat popup buttons: "Open Claude", "Open Codex", "Open Cursor", "Copy prompt" (reads "Prompt copied" for 2 seconds), "Close"
+- Treat popup help: Nothing opens? Copy the prompt and paste it into any agent.
+- Treat prompt (written for the agent, plain and literal; built in `src/lib/treat.ts` from the strings in `src/lib/copy.ts`): a header ("Dr. Slop examined {url} and diagnosed {tier} (Slop Index {n}/100)", the full chart link, then the instructions: work in the codebase that builds the page or ask where it is, find each symptom first, show a one-line-per-symptom plan and wait for a go-ahead, change only what each symptom needs), then one block per present symptom, most serious first: "{n}. {Symptom} · {pct} · {Sections | Whole page | Page code and copy}", "What it is: {about}", "Healthy when: {the taxonomy's whenFalse}", "Rx: {rx}". When it would push Cursor's link past 10,000 characters it stops and ends "{n} milder symptoms are left for another round." Only the doctor's own words go in, never text from the patient's page.
 - Cached note: This patient was examined in the last 24 hours, so here's that chart.
 
 ### Academy referral (bottom of every chart)

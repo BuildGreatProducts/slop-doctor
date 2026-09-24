@@ -142,6 +142,41 @@ export const share = {
   cardFallbackHeadline: "The doctor can see you now",
 };
 
+export const treat = {
+  button: "Treat with your agent",
+  title: (host: string) => `Treat ${host} with your agent`,
+  intro: "Your agent opens with this prompt filled in. Read it, then press send.",
+  promptLabel: "Prompt for your agent",
+  openClaude: "Open Claude",
+  openCodex: "Open Codex",
+  openCursor: "Open Cursor",
+  copyPrompt: "Copy prompt",
+  promptCopied: "Prompt copied",
+  help: "Nothing opens? Copy the prompt and paste it into any agent.",
+  close: "Close",
+  // The prompt itself, written for the agent. Only the doctor's own words go in: never text from the patient's page.
+  prompt: {
+    head: (url: string, tier: string, index: number, chart: string) =>
+      [
+        `Dr. Slop examined ${url} and diagnosed ${tier} (Slop Index ${index}/100).`,
+        `Full chart: ${chart}`,
+        "",
+        "Treat the symptoms below in the codebase that builds this page. If you aren't in that codebase, ask me where it is before you change anything.",
+        "",
+        "The doctor examined the live page, not the code, so start by finding where each symptom lives. Then show me a short plan, one line per symptom, and wait for my go-ahead. Change only what each symptom needs, and keep the brand, content and layout that aren't affected.",
+      ].join("\n"),
+    symptom: (n: number, name: string, percent: string, where: string) =>
+      `${n}. ${name} · ${percent}${where ? ` · ${where}` : ""}`,
+    about: (text: string) => `What it is: ${text}`,
+    healthy: (text: string) => `Healthy when: ${text}`,
+    rx: (text: string) => `Rx: ${text}`,
+    wholePage: "Whole page",
+    codeAndCopy: "Page code and copy",
+    section: "the section",
+    more: (n: number) => `${n} milder ${n === 1 ? "symptom is" : "symptoms are"} left for another round.`,
+  },
+};
+
 export const academy = {
   eyebrow: "Referral",
   headline: "Build something the doctor can't diagnose",

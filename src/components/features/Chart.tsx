@@ -1,7 +1,7 @@
 "use client";
 
 import { SYMPTOMS_BY_KEY, type SymptomGroup, type TierKey } from "../../../convex/lib/taxonomy";
-import { chart, regionKindLabels, scanner, share, tiers } from "@/lib/copy";
+import { chart, regionKindLabels, scanner, share, tiers, treat } from "@/lib/copy";
 import { type Determination, describeDeterminations, isHealthy } from "@/lib/determinations";
 import { barTone, findingName } from "@/lib/findings";
 import type { Finding, PublicScan } from "@/lib/types";
@@ -19,6 +19,7 @@ type Props = {
   findings: Finding[];
   cached?: boolean;
   onShare: () => void;
+  onTreat: () => void;
   onSecondOpinion?: () => void;
   onExamineAnother: () => void;
 };
@@ -104,7 +105,7 @@ function DeterminationCard({ label, value }: { label: string; value: Determinati
   );
 }
 
-export function Chart({ scan, findings, cached, onShare, onSecondOpinion, onExamineAnother }: Props) {
+export function Chart({ scan, findings, cached, onShare, onTreat, onSecondOpinion, onExamineAnother }: Props) {
   const tier = (scan.tier ?? "clean") as TierKey;
   const regionKinds = new Map((scan.regions ?? []).map((r) => [r.id, r.kind]));
   const groups = groupRows(findings, regionKinds);
@@ -183,8 +184,13 @@ export function Chart({ scan, findings, cached, onShare, onSecondOpinion, onExam
             <button type="button" className="btn btn-primary" onClick={onShare}>
               {share.button}
             </button>
+            {hasSymptoms && (
+              <button type="button" className="btn btn-secondary" onClick={onTreat}>
+                {treat.button}
+              </button>
+            )}
             {onSecondOpinion && (
-              <button type="button" className="btn btn-secondary" onClick={onSecondOpinion}>
+              <button type="button" className="btn btn-ghost" onClick={onSecondOpinion}>
                 {chart.secondOpinion}
               </button>
             )}
