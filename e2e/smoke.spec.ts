@@ -43,7 +43,7 @@ test("a completed chart renders for a signed-out visitor", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Slop chart for");
   await expect(page.getByText("Slop Index", { exact: true })).toBeVisible();
   await expect(page.locator(".region-box").first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "Share discharge papers" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Share report" })).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
 });
@@ -78,7 +78,7 @@ test("the share popup shows the chart image and prefilled share links", async ({
   const id = process.env.E2E_CHART_ID;
   test.skip(!id, "Set E2E_CHART_ID to a completed scan (pnpm seed:fixture prints one)");
   await page.goto(`/chart/${id}`);
-  await page.getByRole("button", { name: "Share discharge papers" }).click();
+  await page.getByRole("button", { name: "Share report" }).click();
   const dialog = page.getByRole("dialog", { name: "Share your slop chart" });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole("img")).toHaveJSProperty("naturalWidth", 1200);
@@ -89,6 +89,29 @@ test("the share popup shows the chart image and prefilled share links", async ({
   );
   const image = await request.get(`/chart/${id}/opengraph-image`);
   expect(image.headers()["content-type"]).toBe("image/png");
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+});
+
+test("the treat popup opens each agent with the prompt filled in", async ({ page }) => {
+  const id = process.env.E2E_CHART_ID;
+  test.skip(!id, "Set E2E_CHART_ID to a completed scan (pnpm seed:fixture prints one)");
+  await page.goto(`/chart/${id}`);
+  await page.getByRole("button", { name: "Treat with your agent" }).click();
+  const dialog = page.getByRole("dialog", { name: /^Treat .+ with your agent$/ });
+  await expect(dialog).toBeVisible();
+  const shown = dialog.getByLabel("Prompt for your agent");
+  await expect(shown).toContainText("Dr. Slop examined");
+  const prompt = await shown.textContent();
+  for (const [name, base, param] of [
+    ["Open Claude", "claude://code/new", "q"],
+    ["Open Codex", "codex://new", "prompt"],
+    ["Open Cursor", "https://cursor.com/link/prompt", "text"],
+  ]) {
+    const href = await dialog.getByRole("link", { name }).getAttribute("href");
+    expect(href?.startsWith(`${base}?${param}=`)).toBe(true);
+    expect(new URL(href ?? "").searchParams.get(param)).toBe(prompt);
+  }
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
 });

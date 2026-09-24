@@ -62,13 +62,17 @@ export function tierFor(index: number): TierKey {
 
 const TAXONOMY_ORDER = new Map(ALL_SYMPTOMS.map((s, i) => [s.key, i]));
 
+/** Present symptoms, highest weight × p first; ties go to taxonomy order. */
+export function rankSymptoms(findings: ScoredFinding[]): [string, { p: number; weight: number }][] {
+  return [...aggregateSymptoms(findings).entries()].sort(
+    ([ka, a], [kb, b]) =>
+      b.weight * b.p - a.weight * a.p || (TAXONOMY_ORDER.get(ka) ?? 999) - (TAXONOMY_ORDER.get(kb) ?? 999),
+  );
+}
+
 /** Up to three symptom keys with the highest weight × p; ties go to taxonomy order. */
 export function pickPrescriptions(findings: ScoredFinding[]): string[] {
-  return [...aggregateSymptoms(findings).entries()]
-    .sort(
-      ([ka, a], [kb, b]) =>
-        b.weight * b.p - a.weight * a.p || (TAXONOMY_ORDER.get(ka) ?? 999) - (TAXONOMY_ORDER.get(kb) ?? 999),
-    )
+  return rankSymptoms(findings)
     .slice(0, 3)
     .map(([key]) => key);
 }

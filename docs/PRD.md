@@ -740,7 +740,7 @@ Related Stories: US-005
 Priority: P1
 Description:
 - `src/app/chart/[id]/opengraph-image.tsx` renders a 1200×630 PNG with `next/og` for every chart: host, diagnosis with tick or cross, one-liner, Slop Index figure and meter in its colour, the top three symptoms with bars (visual symptoms first), and the three determinations with their faces. Unfinished or missing charts get a brand card, cached for 60 seconds; finished charts are cached as immutable. It is the chart page's `og:image` and `twitter:image` (`metadataBase` is `https://www.slopdoctor.app` in production).
-- "Share discharge papers" on the chart opens a native `<dialog>` with the image and: "Post on X" (`x.com/intent/post` with the text and link), "Share on LinkedIn" (`linkedin.com/sharing/share-offsite` with the link), "Copy link" (button reads "Link copied" for 2 s; a selectable link appears if the clipboard is blocked) and "Download image" (`slop-chart-{host}.png`).
+- "Share report" on the chart opens a native `<dialog>` with the image and: "Post on X" (`x.com/intent/post` with the text and link), "Share on LinkedIn" (`linkedin.com/sharing/share-offsite` with the link), "Copy link" (button reads "Link copied" for 2 s; a selectable link appears if the clipboard is blocked) and "Download image" (`slop-chart-{host}.png`).
 - Share text: "Dr. Slop diagnosed {host} with {tier} (Slop Index {n}). Get your landing page examined:"
 - Fonts for the image are TTF copies in `assets/fonts/` (Satori can't read WOFF2); colours come from `src/lib/tokens.ts`, which a test keeps in sync with `tokens.css`.
 Acceptance Criteria: the image renders for sloppy, clean and missing charts; the popup's links are prefilled; it works on mobile; Escape closes it.
@@ -750,6 +750,15 @@ Related Stories: US-005
 Priority: P1
 Description: Every chart ends with a full-width paper-grid band referring the visitor to the AI Product Academy: eyebrow, headline, one paragraph, and a primary button linking to `https://www.skool.com/aiapps/about` in a new tab (`rel="noopener noreferrer"`). Copy in `docs/COPY.md` § Academy referral.
 Acceptance Criteria: the band appears at the bottom of every finished chart, at full frame width, on desktop and mobile.
+Related Stories: US-004
+
+**FR-023: Treat with your agent**
+Priority: P1
+Description:
+- "Treat with your agent" on a chart with symptoms opens a native `<dialog>` holding a prompt for a coding agent, plus links that open it pre-filled and unsent: "Open Claude" (`claude://code/new?q=`, the Claude app's Code tab), "Open Codex" (`codex://new?prompt=`) and "Open Cursor" (`https://cursor.com/link/prompt?text=`, new tab). "Copy prompt" covers every other agent.
+- The prompt (`src/lib/treat.ts`) lists every present symptom by weight × p, the prescription order: its name, score and where it was found, its `about`, its `whenFalse` as "Healthy when", and its Rx. It tells the agent to find each symptom in the code, show a plan and wait for a go-ahead, and to ask for the codebase if it isn't in it. It stops before its encoded length would push Cursor's link past 10,000 characters (about 6,500 characters of prompt; Claude's app truncates at about 14,000), and ends by counting the milder symptoms left for another round.
+- Only the doctor's own words go in: taxonomy text, section labels, numbers, the display URL (only its origin when it runs past 200 characters) and the chart link. Page text (`pageTitle`, region descriptions, visible text) never does, because charts are public and a page could otherwise plant instructions in a visitor's agent.
+Acceptance Criteria: each link opens its agent with the prompt filled in and not sent; Cursor's link stays under 10,000 characters for a page with every symptom; it works on mobile; Escape closes it.
 Related Stories: US-004
 
 **FR-017: Second opinion**
@@ -861,11 +870,12 @@ States:
 - **Error:** `not_found` for bad ids.
 
 Key Interactions:
-- "Copy discharge papers" → clipboard → `toast`.
+- "Share report" → share popup (FR-021).
+- "Treat with your agent" → treat popup (FR-023).
 - "Get a second opinion" → FR-017 (requires sign-in; signed out → `SignInPanel`).
 - "Examine another patient" → back to intake.
 
-Components Used: panel-grid, card, list-item, chip, note (DoctorsNote), rung, button-primary (Copy discharge papers), button-secondary (Get a second opinion), button-ghost (Examine another patient), toast.
+Components Used: panel-grid, card, list-item, chip, note (DoctorsNote), rung, button-primary (Share report), button-secondary (Treat with your agent), button-ghost (Get a second opinion, Examine another patient), toast.
 
 ### Screen: Privacy and Terms
 Route: `/privacy`, `/terms`
@@ -874,7 +884,7 @@ Layout: `LegalDoc`: a mono eyebrow with the last-updated date, `headline-lg` tit
 Components Used: none beyond type styles; the footer on every page links to both.
 
 ### Modal/dialog flows
-None. Sign-in is inline.
+Three native `<dialog>` popups: sign-in (landing page), share (FR-021) and treat with your agent (FR-023).
 
 ## 9. Auth Implementation
 
