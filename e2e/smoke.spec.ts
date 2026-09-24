@@ -100,13 +100,18 @@ test("the treat popup opens each agent with the prompt filled in", async ({ page
   await page.getByRole("button", { name: "Treat with your agent" }).click();
   const dialog = page.getByRole("dialog", { name: /^Treat .+ with your agent$/ });
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByLabel("Prompt for your agent")).toContainText("Dr. Slop examined");
-  await expect(dialog.getByRole("link", { name: "Open Claude" })).toHaveAttribute("href", /^claude:\/\/code\/new\?q=Dr\.%20Slop/);
-  await expect(dialog.getByRole("link", { name: "Open Codex" })).toHaveAttribute("href", /^codex:\/\/new\?prompt=Dr\.%20Slop/);
-  await expect(dialog.getByRole("link", { name: "Open Cursor" })).toHaveAttribute(
-    "href",
-    /^https:\/\/cursor\.com\/link\/prompt\?text=Dr\.%20Slop/,
-  );
+  const shown = dialog.getByLabel("Prompt for your agent");
+  await expect(shown).toContainText("Dr. Slop examined");
+  const prompt = await shown.textContent();
+  for (const [name, base, param] of [
+    ["Open Claude", "claude://code/new", "q"],
+    ["Open Codex", "codex://new", "prompt"],
+    ["Open Cursor", "https://cursor.com/link/prompt", "text"],
+  ]) {
+    const href = await dialog.getByRole("link", { name }).getAttribute("href");
+    expect(href?.startsWith(`${base}?${param}=`)).toBe(true);
+    expect(new URL(href ?? "").searchParams.get(param)).toBe(prompt);
+  }
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
 });

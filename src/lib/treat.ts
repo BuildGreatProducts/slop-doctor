@@ -12,6 +12,12 @@ const CURSOR_BASE = "https://cursor.com/link/prompt?text=";
  */
 export const MAX_ENCODED_CHARS = 10_000 - CURSOR_BASE.length - 100;
 
+/**
+ * A longer patient URL is shortened to its origin. A path can run to thousands of characters once encoded, and it's
+ * the one part of the prompt the person who ran the examination chose.
+ */
+export const MAX_URL_CHARS = 200;
+
 type Input = {
   scan: Pick<PublicScan, "displayUrl" | "tier" | "slopIndex" | "regions">;
   findings: Pick<Finding, "key" | "kind" | "band" | "probability" | "weight" | "regionId">[];
@@ -52,7 +58,9 @@ export function treatmentPrompt({ scan, findings, chartUrl }: Input): string {
   });
 
   const tier = tiers[(scan.tier ?? "clean") as TierKey].name;
-  let prompt = treat.prompt.head(scan.displayUrl, tier, scan.slopIndex ?? 0, chartUrl);
+  const url = scan.displayUrl.length > MAX_URL_CHARS ? new URL(scan.displayUrl).origin : scan.displayUrl;
+  // The head is short now, so it and the note on left-over symptoms always fit; the loop keeps room for that note.
+  let prompt = treat.prompt.head(url, tier, scan.slopIndex ?? 0, chartUrl);
   let included = 0;
   for (const block of blocks) {
     const left = blocks.length - included - 1;
